@@ -1,5 +1,5 @@
 // import { createHash } from 'crypto';
-import LinkedListNode from './helper_structures/doubly_linked_list_node';
+import LinkedListNode from './data_structures/doubly_linked_list_node';
 
 export default class Cache {
   constructor() {

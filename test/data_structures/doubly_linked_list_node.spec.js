@@ -3,7 +3,7 @@
 import chai from 'chai';
 import spies from 'chai-spies';
 
-import DoublyLinkedListNode from '../../src/helper_structures/doubly_linked_list_node';
+import DoublyLinkedListNode from '../../src/data_structures/doubly_linked_list_node';
 
 chai.expect();
 chai.use(spies);

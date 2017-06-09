@@ -40,6 +40,8 @@ export default class DoublyLinkedList {
     node.next = this._tail;
     this._tail.prev = node;
     this._length += 1;
+    
+    return node;
   }
 
   prepend(value) {
@@ -51,6 +53,8 @@ export default class DoublyLinkedList {
     node.prev = this._head;
     this._head.next = node;
     this._length += 1;
+
+    return node;
   }
 
   pop() {
@@ -91,18 +95,18 @@ export default class DoublyLinkedList {
 
   // Method aliases
   add(value) {
-    this.append(value);
+    return this.append(value);
   }
 
   push(value) {
-    this.append(value);
+    return this.append(value);
   }
 
   unshift(value) {
-    this.prepend(value);
+    return this.prepend(value);
   }
 
   delete(node) {
-    this.remove(node);
+    return this.remove(node);
   }
 }

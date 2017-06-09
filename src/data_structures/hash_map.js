@@ -33,6 +33,7 @@ export default class HashMap {
 
     this.cache[key] = value;
     this._length += 1;
+    return value;
   }
 
   addValues(values) {
@@ -49,7 +50,7 @@ export default class HashMap {
   }
 
   getValue(key) {
-    return this._cache[key];
+    return this._cache[key] ? this._cache[key] : null;
   }
 
   hasKey(key) {
@@ -64,14 +65,17 @@ export default class HashMap {
 
   remove(value) {
     const key = this.createKey(value);
+    let removedVal = this._cache[key];
 
-    if (this.hasKey(key)) this._length -= 1;
+    if (removedVal) this._length -= 1;
     delete this._cache[key];
+
+    return removedVal ? removedVal : null;
   }
 
   // Method aliases
   add(value) {
-    this.addValue(value);
+    return this.addValue(value);
   }
 
   getKey(value) {
@@ -83,10 +87,10 @@ export default class HashMap {
   }
 
   insert(value) {
-    this.addValue(value);
+    return this.addValue(value);
   }
 
   delete(value) {
-    this.remove(value);
+    return this.remove(value);
   }
 };

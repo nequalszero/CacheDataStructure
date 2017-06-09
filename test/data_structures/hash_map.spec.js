@@ -4,7 +4,7 @@ import chai from 'chai';
 import spies from 'chai-spies';
 
 import crypto from 'crypto';
-import HashMap from '../../src/helper_structures/hash_map';
+import HashMap from '../../src/data_structures/hash_map';
 
 chai.expect();
 chai.use(spies);
@@ -12,6 +12,7 @@ chai.use(spies);
 const expect = chai.expect;
 
 let hashMap, expectedKey, key1, key2, spy;
+let value1, value2, value4;
 
 describe('HashMap', () => {
   describe('When initializing a hash map', () => {
@@ -75,41 +76,66 @@ describe('HashMap', () => {
   });
 
   describe('#addValue', () => {
-    it('should add a new value to the cache', () => {
+    before(() => {
       hashMap = new HashMap();
-      hashMap.addValue(1);
+      value1 = hashMap.addValue(1);
       key1 = hashMap.createKey(1);
+    });
 
+    it('should add a new value to the cache', () => {
       expect(hashMap.cache[key1]).to.be.equal(1);
+    });
+
+    it('should return the newly added value', () => {
+      expect(value1).to.be.equal(1);
     });
   });
 
   describe('#add', () => {
-    it('should call #addValue with the given value', () => {
+    before(() => {
       hashMap = new HashMap();
       spy = chai.spy.on(hashMap, 'addValue');
-      hashMap.add(1);
+      value1 = hashMap.add(1);
+    });
 
+    it('should call #addValue with the given value', () => {
       expect(spy).to.have.been.called.once.with(1);
+    });
+
+    it('should return the newly added value', () => {
+      expect(value1).to.be.equal(1);
     });
   });
 
   describe('#insert', () => {
-    it('should call #addValue with the given value', () => {
+    before(() => {
       hashMap = new HashMap();
       spy = chai.spy.on(hashMap, 'addValue');
-      hashMap.insert(1);
+      value1 = hashMap.insert(1);
+    });
 
+    it('should call #addValue with the given value', () => {
       expect(spy).to.have.been.called.once.with(1);
+    });
+
+    it('should return the newly added value', () => {
+      expect(value1).to.be.equal(1);
     });
   });
 
   describe('#getValue', () => {
-    it('should add a new value to the cache', () => {
-      hashMap = new HashMap({values: [1, 2, 3]});
+    before(() => {
+      hashMap = new HashMap({values: [1, 3]});
       key1 = hashMap.createKey(1);
+      key2 = hashMap.createKey(2);
+    });
 
+    it('should return the value if its key exists in the cache', () => {
       expect(hashMap.getValue(key1)).to.be.equal(1);
+    });
+
+    it('should return null if the key does not exist in the cache', () => {
+      expect(hashMap.getValue(key2)).to.be.null;
     });
   });
 
@@ -143,8 +169,8 @@ describe('HashMap', () => {
   describe('#remove', () => {
     before(() => {
       hashMap = new HashMap({values: [1, 2, 3]});
-      hashMap.remove(2);
-      hashMap.remove(4);
+      value2 = hashMap.remove(2);
+      value4 = hashMap.remove(4);
     });
 
     it('should remove a value if it exists in the cache', () => {
@@ -154,15 +180,29 @@ describe('HashMap', () => {
     it('should reduce the length if the value existed', () => {
       expect(hashMap.length).to.be.equal(2);
     });
+
+    it('should return the removed value if it existed', () => {
+      expect(value2).to.be.equal(2);
+    });
+
+    it('should return null if the value did not exist', () => {
+      expect(value4).to.be.null;
+    });
   });
 
   describe('#delete', () => {
-    it('should call #remove with the given value', () => {
+    before(() => {
       hashMap = new HashMap({values: [1, 2, 3]});
       spy = chai.spy.on(hashMap, 'remove');
-      hashMap.delete(1);
+      value1 = hashMap.delete(1);
+    });
 
+    it('should call #remove with the given value', () => {
       expect(spy).to.have.been.called.once.with(1);
+    });
+
+    it('should return the value returned by the #remove method', () => {
+      expect(value1).to.be.equal(1);
     });
   });
 });
