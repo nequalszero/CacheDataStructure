@@ -1,13 +1,16 @@
 /* global describe, it, before */
 
 import chai from 'chai';
+import spies from 'chai-spies';
+
 import DoublyLinkedListNode from '../../src/helper_structures/doubly_linked_list_node';
 
 chai.expect();
+chai.use(spies);
 
 const expect = chai.expect;
 
-let linkedListNode, nullNode;
+let linkedListNode, nullNode, spy;
 
 describe('DoublyLinkedListNode', () => {
   describe('When initializing a doubly linked list node', () => {
@@ -85,6 +88,23 @@ describe('DoublyLinkedListNode', () => {
 
     it('should return node3 for node2.next', () => {
       expect(node2.next).to.be.equal(node3);
+    });
+  });
+
+  describe('#toString', () => {
+    before(() => {
+      node1 = new DoublyLinkedListNode(1);
+      node2 = new DoublyLinkedListNode(2);
+      node3 = new DoublyLinkedListNode(3);
+
+      node1.next = node2;
+      node2.next = node3;
+    });
+
+    it('should return the result of calling #toString on the value attribute', () => {
+      node1 = new DoublyLinkedListNode({a: 5});
+
+      expect(node1.toString()).to.be.equal({a: 5}.toString());
     });
   });
 });

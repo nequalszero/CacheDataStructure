@@ -24,4 +24,8 @@ export default class DoublyLinkedListNode {
   set next(node) {
     this._next = node;
   }
+
+  toString() {
+    return this._value.toString();
+  }
 }
