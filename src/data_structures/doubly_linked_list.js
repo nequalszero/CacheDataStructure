@@ -40,21 +40,29 @@ export default class DoublyLinkedList {
     node.next = this._tail;
     this._tail.prev = node;
     this._length += 1;
-    
+
     return node;
   }
 
-  prepend(value) {
-    const node = value instanceof DoublyLinkedListNode ? value : new DoublyLinkedListNode(value);
-    const oldFirst = this._head.next;
+  forEach(cb) {
+    let currentNode = this._head._next;
 
-    oldFirst.prev = node;
-    node.next = oldFirst;
-    node.prev = this._head;
-    this._head.next = node;
-    this._length += 1;
+    while (currentNode !== this._tail) {
+      cb(currentNode);
+      currentNode = currentNode._next;
+    }
+  }
 
-    return node;
+  map(cb) {
+    let currentNode = this._head._next;
+    const result = [];
+
+    while (currentNode !== this._tail) {
+      result.push(cb(currentNode));
+      currentNode = currentNode._next;
+    }
+
+    return result;
   }
 
   pop() {
@@ -70,6 +78,29 @@ export default class DoublyLinkedList {
     return lastNode;
   }
 
+  prepend(value) {
+    const node = value instanceof DoublyLinkedListNode ? value : new DoublyLinkedListNode(value);
+    const oldFirst = this._head.next;
+
+    oldFirst.prev = node;
+    node.next = oldFirst;
+    node.prev = this._head;
+    this._head.next = node;
+    this._length += 1;
+
+    return node;
+  }
+
+  remove(node) {
+    node.next.prev = node.prev;
+    node.prev.next = node.next;
+    node.next = null;
+    node.prev = null;
+    this._length -= 1;
+
+    return node;
+  }
+
   shift() {
     if (this.length === 0) return null;
     const firstNode = this.first;
@@ -81,16 +112,6 @@ export default class DoublyLinkedList {
     this._length -= 1;
 
     return firstNode;
-  }
-
-  remove(node) {
-    node.next.prev = node.prev;
-    node.prev.next = node.next;
-    node.next = null;
-    node.prev = null;
-    this._length -= 1;
-
-    return node;
   }
 
   // Method aliases

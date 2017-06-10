@@ -11,7 +11,7 @@ chai.use(spies);
 const expect = chai.expect;
 
 let linkedList, firstNode, lastNode, spy;
-let node1, node2, node3, removedNode;
+let node1, node2, node3, removedNode, result, cb;
 
 describe('DoublyLinkedList', () => {
   describe('When initializing a doubly linked list', () => {
@@ -254,6 +254,44 @@ describe('DoublyLinkedList', () => {
     it('should return the deleted node', () => {
       expect(removedNode instanceof DoublyLinkedListNode).to.be.true;
       expect(removedNode.value).to.be.equal(2);
+    });
+  });
+
+  describe('When using the #forEach method', () => {
+    it('does nothing if the linked list length is 0', () => {
+      linkedList = new DoublyLinkedList();
+      result = [];
+      linkedList.forEach((node) => result.push(node.value));
+      expect(result).to.be.empty;
+    });
+
+    it('executes the callback if the linked list length is greater than 0', () => {
+      linkedList = new DoublyLinkedList([1, 2, 3]);
+      result = [];
+      linkedList.forEach((node) => result.push(node.value));
+
+      expect(result).to.include.ordered.members([1, 2, 3]);
+      expect(result.length).to.be.equal(3);
+    });
+  });
+
+  describe('When using the #map method', () => {
+    before(() => {
+      cb = (node) => node.value + 1;
+    });
+
+    it('does nothing if the linked list length is 0', () => {
+      linkedList = new DoublyLinkedList();
+      result = linkedList.map(cb);
+      expect(result).to.be.empty;
+    });
+
+    it('executes the callback if the linked list length is greater than 0', () => {
+      linkedList = new DoublyLinkedList([1, 2, 3]);
+      result = linkedList.map(cb);
+
+      expect(result).to.include.ordered.members([2, 3, 4]);
+      expect(result.length).to.be.equal(3);
     });
   });
 });
