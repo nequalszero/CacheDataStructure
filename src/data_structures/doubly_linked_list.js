@@ -44,23 +44,22 @@ export default class DoublyLinkedList {
     return node;
   }
 
-  forEach(cb) {
-    let currentNode = this._head._next;
+  forEach(cb, reversed = false) {
+    // options object will have startingNode, stoppingNode, and nextKey attributes
+    const options = this._loopConditions(reversed);
+    let currentNode = options.startingNode[options.nextKey];
 
-    while (currentNode !== this._tail) {
+    while (currentNode !== options.stoppingNode) {
       cb(currentNode);
-      currentNode = currentNode._next;
+      currentNode = currentNode[options.nextKey];
     }
   }
 
-  map(cb) {
-    let currentNode = this._head._next;
+  map(cb, reversed = false) {
     const result = [];
+    const mapCb = (node) => result.push(cb(node));
 
-    while (currentNode !== this._tail) {
-      result.push(cb(currentNode));
-      currentNode = currentNode._next;
-    }
+    this.forEach(mapCb, reversed);
 
     return result;
   }
@@ -112,6 +111,14 @@ export default class DoublyLinkedList {
     this._length -= 1;
 
     return firstNode;
+  }
+
+  _loopConditions(reverseOrder) {
+    return {
+      startingNode: reverseOrder ? this._tail : this._head,
+      stoppingNode: reverseOrder ? this._head : this._tail,
+      nextKey: reverseOrder ? '_prev' : '_next'
+    };
   }
 
   // Method aliases

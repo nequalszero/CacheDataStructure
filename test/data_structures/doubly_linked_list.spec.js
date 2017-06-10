@@ -1,4 +1,4 @@
-/* global describe, it, before */
+/* global describe, it, before, beforeEach */
 
 import chai from 'chai';
 import spies from 'chai-spies';
@@ -258,40 +258,84 @@ describe('DoublyLinkedList', () => {
   });
 
   describe('When using the #forEach method', () => {
-    it('does nothing if the linked list length is 0', () => {
-      linkedList = new DoublyLinkedList();
-      result = [];
-      linkedList.forEach((node) => result.push(node.value));
-      expect(result).to.be.empty;
+    describe('When the length is 0', () => {
+      beforeEach(() => {
+        linkedList = new DoublyLinkedList();
+        result = [];
+        cb = (node) => result.push(node.value);
+      });
+
+      it('does nothing when the reversed boolean is left as false ', () => {
+        linkedList.forEach(cb);
+        expect(result).to.be.empty;
+      });
+
+      it('does nothing when the reversed boolean is set to true', () => {
+        linkedList.forEach(cb, true);
+        expect(result).to.be.empty;
+      });
     });
 
-    it('executes the callback if the linked list length is greater than 0', () => {
-      linkedList = new DoublyLinkedList([1, 2, 3]);
-      result = [];
-      linkedList.forEach((node) => result.push(node.value));
+    describe('When the length is greater than 0', () => {
+      beforeEach(() => {
+        linkedList = new DoublyLinkedList([1, 2, 3]);
+        result = [];
+        cb = (node) => result.push(node.value);
+      });
 
-      expect(result).to.include.ordered.members([1, 2, 3]);
-      expect(result.length).to.be.equal(3);
+      it('executes the callback when the reversed boolean is left as false', () => {
+        linkedList.forEach(cb);
+
+        expect(result).to.include.ordered.members([1, 2, 3]);
+        expect(result.length).to.be.equal(3);
+      });
+
+      it('executes the callback when the reversed boolean is set to true', () => {
+        linkedList.forEach(cb, true);
+
+        expect(result).to.include.ordered.members([3, 2, 1]);
+        expect(result.length).to.be.equal(3);
+      });
     });
   });
 
   describe('When using the #map method', () => {
-    before(() => {
-      cb = (node) => node.value + 1;
+    describe('When the length is 0', () => {
+      beforeEach(() => {
+        linkedList = new DoublyLinkedList();
+        cb = (node) => node.value;
+      });
+
+      it('does nothing when the reversed boolean is left as false ', () => {
+        result = linkedList.map(cb);
+        expect(result).to.be.empty;
+      });
+
+      it('does nothing when the reversed boolean is set to true', () => {
+        result = linkedList.map(cb, true);
+        expect(result).to.be.empty;
+      });
     });
 
-    it('does nothing if the linked list length is 0', () => {
-      linkedList = new DoublyLinkedList();
-      result = linkedList.map(cb);
-      expect(result).to.be.empty;
-    });
+    describe('When the length is greater than 0', () => {
+      beforeEach(() => {
+        linkedList = new DoublyLinkedList([1, 2, 3]);
+        cb = (node) => node.value + 1;
+      });
 
-    it('executes the callback if the linked list length is greater than 0', () => {
-      linkedList = new DoublyLinkedList([1, 2, 3]);
-      result = linkedList.map(cb);
+      it('executes the callback when the reversed boolean is left as false', () => {
+        result = linkedList.map(cb);
 
-      expect(result).to.include.ordered.members([2, 3, 4]);
-      expect(result.length).to.be.equal(3);
+        expect(result).to.include.ordered.members([2, 3, 4]);
+        expect(result.length).to.be.equal(3);
+      });
+
+      it('executes the callback when the reversed boolean is set to true', () => {
+        result = linkedList.map(cb, true);
+
+        expect(result).to.include.ordered.members([4, 3, 2]);
+        expect(result.length).to.be.equal(3);
+      });
     });
   });
 });
