@@ -86,6 +86,10 @@ export default class HashMap {
     return this.hasValue(value);
   }
 
+  include(value) {
+    return this.hasValue(value);
+  }
+
   insert(value) {
     return this.addValue(value);
   }

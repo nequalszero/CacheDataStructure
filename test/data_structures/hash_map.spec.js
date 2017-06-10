@@ -166,6 +166,16 @@ describe('HashMap', () => {
     });
   });
 
+  describe('#include', () => {
+    it('should call #hasValue with the given value', () => {
+      hashMap = new HashMap({values: [1, 2, 3]});
+      spy = chai.spy.on(hashMap, 'hasValue');
+      hashMap.include(1);
+
+      expect(spy).to.have.been.called.once.with(1);
+    });
+  });
+
   describe('#remove', () => {
     before(() => {
       hashMap = new HashMap({values: [1, 2, 3]});
