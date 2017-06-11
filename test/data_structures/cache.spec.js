@@ -10,7 +10,7 @@ chai.use(spies);
 
 const expect = chai.expect;
 
-let cache, spy, errorFn;
+let cache, spy, errorFn, key;
 
 describe('Cache', () => {
   describe('When initializing a cache', () => {
@@ -133,6 +133,22 @@ describe('Cache', () => {
         expect(cache._linkedList.first.value).to.be.equal(2);
         expect(cache._linkedList.last.value).to.be.equal(4);
       });
+    });
+  });
+
+  describe('#createKey', () => {
+    before(() => {
+      cache = new Cache();
+      spy = chai.spy.on(cache._hashMap, 'createKey');
+      key = cache.createKey(1);
+    });
+
+    it('should call the HashMap#createKey', () => {
+      expect(spy).to.have.been.called.once.with(1);
+    });
+
+    it('should return the value returned by HashMap#createKey', () => {
+      expect(key).to.be.equal(cache._hashMap.createKey(1));
     });
   });
 
