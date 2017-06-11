@@ -49,8 +49,18 @@ export default class Cache {
     return this._hashMap.createKey(value);
   }
 
+  forEach(cb, reversed = false) {
+    if (this._length === 0) return;
+    this._linkedList.forEach(cb, reversed);
+  }
+
   hasValue(value) {
     return this._hashMap.includes(value);
+  }
+
+  map(cb, reversed = false) {
+    if (this._length === 0) return [];
+    return this._linkedList.map(cb, reversed);
   }
 
   prepend(value) {

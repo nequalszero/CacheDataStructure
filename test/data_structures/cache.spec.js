@@ -1,4 +1,4 @@
-/* global describe, it, before */
+/* global describe, it, before, beforeEach */
 
 import chai from 'chai';
 import spies from 'chai-spies';
@@ -10,7 +10,7 @@ chai.use(spies);
 
 const expect = chai.expect;
 
-let cache, spy, errorFn, key;
+let cache, spy, errorFn, key, result, cb;
 
 describe('Cache', () => {
   describe('When initializing a cache', () => {
@@ -152,6 +152,80 @@ describe('Cache', () => {
     });
   });
 
+  describe('#forEach', () => {
+    describe('When the length is 0', () => {
+      beforeEach(() => {
+        cache = new Cache();
+        result = [];
+        cb = (node) => result.push(node.value);
+      });
+
+      it('does nothing when the reversed boolean is left as false', () => {
+        cache.forEach(cb);
+        expect(result).to.be.empty;
+      });
+
+      it('does nothing when the reversed boolean is set to true', () => {
+        cache.forEach(cb, true);
+        expect(result).to.be.empty;
+      });
+    });
+
+    describe('When the length is greater than 0', () => {
+      beforeEach(() => {
+        cache = new Cache({values: [1, 2, 3]});
+        result = [];
+        cb = (node) => result.push(node.value);
+      });
+
+      describe('when the reversed boolean is left as the default false', () => {
+        it('executes the callback properly', () => {
+          cache.forEach(cb);
+
+          expect(result).to.include.ordered.members([1, 2, 3]);
+          expect(result.length).to.be.equal(3);
+        });
+
+        it('calls DoublyLinkedList#forEach with the cb and a false boolean', () => {
+          spy = chai.spy.on(cache._linkedList, 'forEach');
+          cache.forEach(cb);
+          expect(spy).to.have.been.called.once.with(cb, false);
+        });
+
+        it('executes the callback when the callback also takes an idx', () => {
+          cb = (node, idx) => result.push(node.value * idx);
+          cache.forEach(cb);
+
+          expect(result).to.include.ordered.members([0, 2, 6]);
+          expect(result.length).to.be.equal(3);
+        });
+      });
+
+      describe('when the reversed boolean is set to true', () => {
+        it('executes the callback when the reversed boolean is set to true', () => {
+          cache.forEach(cb, true);
+
+          expect(result).to.include.ordered.members([3, 2, 1]);
+          expect(result.length).to.be.equal(3);
+        });
+
+        it('calls DoublyLinkedList#forEach with the cb and the reversed boolean set to true', () => {
+          spy = chai.spy.on(cache._linkedList, 'forEach');
+          cache.forEach(cb, true);
+          expect(spy).to.have.been.called.once.with(cb, true);
+        });
+
+        it('executes the callback when the callback also takes an idx and the reversed boolean is true', () => {
+          cb = (node, idx) => result.push(node.value * idx);
+          cache.forEach(cb, true);
+
+          expect(result).to.include.ordered.members([0, 2, 2]);
+          expect(result.length).to.be.equal(3);
+        });
+      });
+    });
+  });
+
   describe('#hasValue', () => {
     before(() => {
       cache = new Cache({values: [1, 2, 3]});
@@ -163,6 +237,80 @@ describe('Cache', () => {
 
     it('should return true if the value is in the cache', () => {
       expect(cache.hasValue(2)).to.be.true;
+    });
+  });
+
+  describe('#map', () => {
+    describe('When the length is 0', () => {
+      beforeEach(() => {
+        cache = new Cache();
+        result = [];
+        cb = (node) => result.push(node.value);
+      });
+
+      it('returns an empty array when the reversed boolean is left as the default false', () => {
+        cache.map(cb);
+        expect(result).to.be.empty;
+      });
+
+      it('returns an empty array when the reversed boolean is set to true', () => {
+        cache.map(cb, true);
+        expect(result).to.be.empty;
+      });
+    });
+
+    describe('When the length is greater than 0', () => {
+      beforeEach(() => {
+        cache = new Cache({values: [1, 2, 3]});
+        result = [];
+        cb = (node) => result.push(node.value);
+      });
+
+      describe('when the reversed boolean is left as the default false', () => {
+        it('executes the callback properly', () => {
+          cache.map(cb);
+
+          expect(result).to.include.ordered.members([1, 2, 3]);
+          expect(result.length).to.be.equal(3);
+        });
+
+        it('calls DoublyLinkedList#map with the cb and a false boolean', () => {
+          spy = chai.spy.on(cache._linkedList, 'map');
+          cache.map(cb);
+          expect(spy).to.have.been.called.once.with(cb, false);
+        });
+
+        it('executes the callback when the callback also takes an idx', () => {
+          cb = (node, idx) => result.push(node.value * idx);
+          cache.map(cb);
+
+          expect(result).to.include.ordered.members([0, 2, 6]);
+          expect(result.length).to.be.equal(3);
+        });
+      });
+
+      describe('when the reversed boolean is set to true', () => {
+        it('executes the callback when the reversed boolean is set to true', () => {
+          cache.map(cb, true);
+
+          expect(result).to.include.ordered.members([3, 2, 1]);
+          expect(result.length).to.be.equal(3);
+        });
+
+        it('calls DoublyLinkedList#map with the cb and the reversed boolean set to true', () => {
+          spy = chai.spy.on(cache._linkedList, 'map');
+          cache.map(cb, true);
+          expect(spy).to.have.been.called.once.with(cb, true);
+        });
+
+        it('executes the callback when the callback also takes an idx and the reversed boolean is true', () => {
+          cb = (node, idx) => result.push(node.value * idx);
+          cache.map(cb, true);
+
+          expect(result).to.include.ordered.members([0, 2, 2]);
+          expect(result.length).to.be.equal(3);
+        });
+      });
     });
   });
 
