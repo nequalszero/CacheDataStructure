@@ -17,12 +17,22 @@ export default class Cache {
     if (params.values) this.addValues(params.values);
   }
 
-  get length() {
-    return this._length;
-  }
-
   get capacity() {
     return this._capacity;
+  }
+
+  get first() {
+    if (this._length === 0) return null;
+    return this._linkedList.first;
+  }
+
+  get last() {
+    if (this._length === 0) return null;
+    return this._linkedList.last;
+  }
+
+  get length() {
+    return this._length;
   }
 
   addValues(values) {
@@ -33,6 +43,10 @@ export default class Cache {
 
   append(value) {
     return this._addValue(value, 'append');
+  }
+
+  createKey(value) {
+    return this._hashMap.createKey(value);
   }
 
   hasValue(value) {

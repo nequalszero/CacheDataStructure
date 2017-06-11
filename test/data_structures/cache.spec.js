@@ -3,6 +3,7 @@
 import chai from 'chai';
 import spies from 'chai-spies';
 import Cache from '../../src/data_structures/cache';
+import DoublyLinkedListNode from '../../src/data_structures/doubly_linked_list_node';
 
 chai.expect();
 chai.use(spies);
@@ -56,6 +57,22 @@ describe('Cache', () => {
         errorFn = () => { cache = new Cache({capacity: 0}); };
         expect(errorFn).to.throw(RangeError);
       });
+    });
+  });
+
+  describe('.first', () => {
+    it('should return the first item in the cache', () => {
+      cache = new Cache({values: [1, 2, 3]});
+      expect(cache.first.value).to.be.equal(1);
+      expect(cache.first instanceof DoublyLinkedListNode).to.be.true;
+    });
+  });
+
+  describe('.last', () => {
+    it('should return the last item in the cache', () => {
+      cache = new Cache({values: [1, 2, 3]});
+      expect(cache.last.value).to.be.equal(3);
+      expect(cache.last instanceof DoublyLinkedListNode).to.be.true;
     });
   });
 
