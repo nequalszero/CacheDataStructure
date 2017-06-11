@@ -25,9 +25,51 @@ describe('HashMap', () => {
 
     describe('with an array of values', () => {
       it('should have the correct length', () => {
-        hashMap = new HashMap({values: [1, 2, 3]});
+        hashMap = new HashMap([1, 2, 3]);
         expect(hashMap.length).to.be.equal(3);
       });
+    });
+  });
+
+  describe('#add', () => {
+    before(() => {
+      hashMap = new HashMap();
+      spy = chai.spy.on(hashMap, 'addValue');
+      value1 = hashMap.add(1);
+    });
+
+    it('should call #addValue with the given value', () => {
+      expect(spy).to.have.been.called.once.with(1);
+    });
+
+    it('should return the newly added value', () => {
+      expect(value1).to.be.equal(1);
+    });
+  });
+
+  describe('#addValue', () => {
+    before(() => {
+      hashMap = new HashMap();
+      value1 = hashMap.addValue(1);
+      key1 = hashMap.createKey(1);
+    });
+
+    it('should add a new value to the cache', () => {
+      expect(hashMap.cache[key1]).to.be.equal(1);
+    });
+
+    it('should return the newly added value', () => {
+      expect(value1).to.be.equal(1);
+    });
+  });
+
+  describe('#contains', () => {
+    it('should call #hasValue with the given value', () => {
+      hashMap = new HashMap([1, 2, 3]);
+      spy = chai.spy.on(hashMap, 'hasValue');
+      hashMap.contains(1);
+
+      expect(spy).to.have.been.called.once.with(1);
     });
   });
 
@@ -65,7 +107,23 @@ describe('HashMap', () => {
     });
   });
 
-  describe('When using the #getKey method', () => {
+  describe('#delete', () => {
+    before(() => {
+      hashMap = new HashMap([1, 2, 3]);
+      spy = chai.spy.on(hashMap, 'remove');
+      value1 = hashMap.delete(1);
+    });
+
+    it('should call #remove with the given value', () => {
+      expect(spy).to.have.been.called.once.with(1);
+    });
+
+    it('should return the value returned by the #remove method', () => {
+      expect(value1).to.be.equal(1);
+    });
+  });
+
+  describe('#getKey', () => {
     it('should call #createKey with the given value', () => {
       hashMap = new HashMap();
       spy = chai.spy.on(hashMap, 'createKey');
@@ -75,35 +133,56 @@ describe('HashMap', () => {
     });
   });
 
-  describe('#addValue', () => {
+  describe('#getValue', () => {
     before(() => {
-      hashMap = new HashMap();
-      value1 = hashMap.addValue(1);
+      hashMap = new HashMap([1, 3]);
       key1 = hashMap.createKey(1);
+      key2 = hashMap.createKey(2);
     });
 
-    it('should add a new value to the cache', () => {
-      expect(hashMap.cache[key1]).to.be.equal(1);
+    it('should return the value if its key exists in the cache', () => {
+      expect(hashMap.getValue(key1)).to.be.equal(1);
     });
 
-    it('should return the newly added value', () => {
-      expect(value1).to.be.equal(1);
+    it('should return null if the key does not exist in the cache', () => {
+      expect(hashMap.getValue(key2)).to.be.null;
     });
   });
 
-  describe('#add', () => {
-    before(() => {
-      hashMap = new HashMap();
-      spy = chai.spy.on(hashMap, 'addValue');
-      value1 = hashMap.add(1);
-    });
+  describe('#hasKey', () => {
+    it('should return true if the cache has the key', () => {
+      hashMap = new HashMap([1, 2, 3]);
+      key1 = hashMap.createKey(1);
 
-    it('should call #addValue with the given value', () => {
+      expect(hashMap.hasKey(key1)).to.be.true;
+    });
+  });
+
+  describe('#hasValue', () => {
+    it('should return true if the cache has the key', () => {
+      hashMap = new HashMap([1, 2, 3]);
+
+      expect(hashMap.hasValue(1)).to.be.true;
+    });
+  });
+
+  describe('#include', () => {
+    it('should call #hasValue with the given value', () => {
+      hashMap = new HashMap([1, 2, 3]);
+      spy = chai.spy.on(hashMap, 'hasValue');
+      hashMap.include(1);
+
       expect(spy).to.have.been.called.once.with(1);
     });
+  });
 
-    it('should return the newly added value', () => {
-      expect(value1).to.be.equal(1);
+  describe('#includes', () => {
+    it('should call #hasValue with the given value', () => {
+      hashMap = new HashMap([1, 2, 3]);
+      spy = chai.spy.on(hashMap, 'hasValue');
+      hashMap.includes(1);
+
+      expect(spy).to.have.been.called.once.with(1);
     });
   });
 
@@ -123,62 +202,9 @@ describe('HashMap', () => {
     });
   });
 
-  describe('#getValue', () => {
-    before(() => {
-      hashMap = new HashMap({values: [1, 3]});
-      key1 = hashMap.createKey(1);
-      key2 = hashMap.createKey(2);
-    });
-
-    it('should return the value if its key exists in the cache', () => {
-      expect(hashMap.getValue(key1)).to.be.equal(1);
-    });
-
-    it('should return null if the key does not exist in the cache', () => {
-      expect(hashMap.getValue(key2)).to.be.null;
-    });
-  });
-
-  describe('#hasKey', () => {
-    it('should return true if the cache has the key', () => {
-      hashMap = new HashMap({values: [1, 2, 3]});
-      key1 = hashMap.createKey(1);
-
-      expect(hashMap.hasKey(key1)).to.be.true;
-    });
-  });
-
-  describe('#hasValue', () => {
-    it('should return true if the cache has the key', () => {
-      hashMap = new HashMap({values: [1, 2, 3]});
-
-      expect(hashMap.hasValue(1)).to.be.true;
-    });
-  });
-
-  describe('#includes', () => {
-    it('should call #hasValue with the given value', () => {
-      hashMap = new HashMap({values: [1, 2, 3]});
-      spy = chai.spy.on(hashMap, 'hasValue');
-      hashMap.includes(1);
-
-      expect(spy).to.have.been.called.once.with(1);
-    });
-  });
-
-  describe('#include', () => {
-    it('should call #hasValue with the given value', () => {
-      hashMap = new HashMap({values: [1, 2, 3]});
-      spy = chai.spy.on(hashMap, 'hasValue');
-      hashMap.include(1);
-
-      expect(spy).to.have.been.called.once.with(1);
-    });
-  });
-
   describe('#remove', () => {
     before(() => {
-      hashMap = new HashMap({values: [1, 2, 3]});
+      hashMap = new HashMap([1, 2, 3]);
       value2 = hashMap.remove(2);
       value4 = hashMap.remove(4);
     });
@@ -197,22 +223,6 @@ describe('HashMap', () => {
 
     it('should return null if the value did not exist', () => {
       expect(value4).to.be.null;
-    });
-  });
-
-  describe('#delete', () => {
-    before(() => {
-      hashMap = new HashMap({values: [1, 2, 3]});
-      spy = chai.spy.on(hashMap, 'remove');
-      value1 = hashMap.delete(1);
-    });
-
-    it('should call #remove with the given value', () => {
-      expect(spy).to.have.been.called.once.with(1);
-    });
-
-    it('should return the value returned by the #remove method', () => {
-      expect(value1).to.be.equal(1);
     });
   });
 });

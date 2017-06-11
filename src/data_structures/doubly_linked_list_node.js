@@ -1,3 +1,4 @@
+// Accepts an optional value.
 export default class DoublyLinkedListNode {
   constructor(value = null) {
     this._value = value;
@@ -18,11 +19,17 @@ export default class DoublyLinkedListNode {
   }
 
   set prev(node) {
+    if (this._invalidNode(node)) throw new TypeError('Invalid node class.');
     this._prev = node;
   }
 
   set next(node) {
+    if (this._invalidNode(node)) throw new TypeError('Invalid node class.');
     this._next = node;
+  }
+
+  _invalidNode(node) {
+    return (!(node instanceof DoublyLinkedListNode) && (node !== null));
   }
 
   toString() {

@@ -21,6 +21,7 @@
     "crypto": "0.0.3",
     "eslint": "3.19.0",
     "eslint-loader": "1.7.1",
+    "lodash": "^4.17.4",
     "mocha": "^3.4.2",
     "webpack": "2.4.1",
     "yargs": "7.1.0"

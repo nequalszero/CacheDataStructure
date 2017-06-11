@@ -1,7 +1,10 @@
 import DoublyLinkedListNode from './doubly_linked_list_node';
+import isArray from 'lodash/isArray';
 
+// Accepts an optional array of starting values.
 export default class DoublyLinkedList {
   constructor(values = null) {
+    this._validateInput(values);
     this._head = new DoublyLinkedListNode();
     this._tail = new DoublyLinkedListNode();
     this._tail.prev = this._head;
@@ -48,16 +51,18 @@ export default class DoublyLinkedList {
     // options object will have startingNode, stoppingNode, and nextKey attributes
     const options = this._loopConditions(reversed);
     let currentNode = options.startingNode[options.nextKey];
+    let idx = 0;
 
     while (currentNode !== options.stoppingNode) {
-      cb(currentNode);
+      cb(currentNode, idx);
       currentNode = currentNode[options.nextKey];
+      idx += 1;
     }
   }
 
   map(cb, reversed = false) {
     const result = [];
-    const mapCb = (node) => result.push(cb(node));
+    const mapCb = (node, idx) => result.push(cb(node, idx));
 
     this.forEach(mapCb, reversed);
 
@@ -121,9 +126,17 @@ export default class DoublyLinkedList {
     };
   }
 
+  _validateInput(values) {
+    if (!(isArray(values) || values === null)) throw new TypeError('input should be an array or null.');
+  }
+
   // Method aliases
   add(value) {
     return this.append(value);
+  }
+
+  delete(node) {
+    return this.remove(node);
   }
 
   push(value) {
@@ -132,9 +145,5 @@ export default class DoublyLinkedList {
 
   unshift(value) {
     return this.prepend(value);
-  }
-
-  delete(node) {
-    return this.remove(node);
   }
 }

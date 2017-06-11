@@ -10,7 +10,7 @@ chai.use(spies);
 
 const expect = chai.expect;
 
-let linkedListNode, nullNode, spy;
+let linkedListNode, nullNode, errorFn;
 
 describe('DoublyLinkedListNode', () => {
   describe('When initializing a doubly linked list node', () => {
@@ -70,6 +70,16 @@ describe('DoublyLinkedListNode', () => {
     it('should return node2 for node3.prev', () => {
       expect(node3.prev).to.be.equal(node2);
     });
+
+    it('should be able to be set to null', () => {
+      node3.prev = null;
+      expect(node3.prev).to.be.null;
+    });
+
+    it('should throw a TypeError for non-null inputs not of the DoublyLinkedListNode class', () => {
+      errorFn = () => { node1.prev = 5; };
+      expect(errorFn).to.throw(TypeError);
+    });
   });
 
   describe('When setting the next attribute', () => {
@@ -89,21 +99,21 @@ describe('DoublyLinkedListNode', () => {
     it('should return node3 for node2.next', () => {
       expect(node2.next).to.be.equal(node3);
     });
+
+    it('should be able to be set to null', () => {
+      node2.next = null;
+      expect(node2.next).to.be.null;
+    });
+
+    it('should throw a TypeError for non-null inputs not of the DoublyLinkedListNode class', () => {
+      errorFn = () => { node1.next = 5; };
+      expect(errorFn).to.throw(TypeError);
+    });
   });
 
   describe('#toString', () => {
-    before(() => {
-      node1 = new DoublyLinkedListNode(1);
-      node2 = new DoublyLinkedListNode(2);
-      node3 = new DoublyLinkedListNode(3);
-
-      node1.next = node2;
-      node2.next = node3;
-    });
-
     it('should return the result of calling #toString on the value attribute', () => {
       node1 = new DoublyLinkedListNode({a: 5});
-
       expect(node1.toString()).to.be.equal({a: 5}.toString());
     });
   });

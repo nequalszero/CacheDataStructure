@@ -9,7 +9,7 @@ chai.use(spies);
 
 const expect = chai.expect;
 
-let cache, spy;
+let cache, spy, errorFn;
 
 describe('Cache', () => {
   describe('When initializing a cache', () => {
@@ -40,19 +40,22 @@ describe('Cache', () => {
         expect(cache.capacity).to.be.equal(Infinity);
       });
     });
-  });
 
-  describe('#hasValue', () => {
-    before(() => {
-      cache = new Cache({values: [1, 2, 3]});
-    });
+    describe('with invalid params', () => {
+      it('should throw a TypeError if params.values is not an Array', () => {
+        errorFn = () => { cache = new Cache({values: {a: 5}}); };
+        expect(errorFn).to.throw(TypeError);
+      });
 
-    it('should return false if the value is not in the cache', () => {
-      expect(cache.hasValue(4)).to.be.false;
-    });
+      it('should throw a TypeError if params.capacity is not an Integer', () => {
+        errorFn = () => { cache = new Cache({capacity: {a: 5}}); };
+        expect(errorFn).to.throw(TypeError);
+      });
 
-    it('should return true if the value is in the cache', () => {
-      expect(cache.hasValue(2)).to.be.true;
+      it('should throw a RangeError if params.capacity is less than 1', () => {
+        errorFn = () => { cache = new Cache({capacity: 0}); };
+        expect(errorFn).to.throw(RangeError);
+      });
     });
   });
 
@@ -113,6 +116,20 @@ describe('Cache', () => {
         expect(cache._linkedList.first.value).to.be.equal(2);
         expect(cache._linkedList.last.value).to.be.equal(4);
       });
+    });
+  });
+
+  describe('#hasValue', () => {
+    before(() => {
+      cache = new Cache({values: [1, 2, 3]});
+    });
+
+    it('should return false if the value is not in the cache', () => {
+      expect(cache.hasValue(4)).to.be.false;
+    });
+
+    it('should return true if the value is in the cache', () => {
+      expect(cache.hasValue(2)).to.be.true;
     });
   });
 

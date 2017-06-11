@@ -1,31 +1,32 @@
 import crypto from 'crypto';
+import isArray from 'lodash/isArray';
 
-// Accepts a params object with the keys:
-//   values: array of values, and
-//   hashingAlgorithm: hashingAlgorithm to be used, default: 'sha256'
+// Accepts a optional array of starting values.
 export default class HashMap {
-  constructor(params = {}) {
+  constructor(values = null) {
+    this._validateInput(values);
     this._cache = {};
     this._length = 0;
-    this._hashingAlgorithm = params.hashingAlgorithm || 'sha256';
+    // `openssl list-message-digest-algorithms` to view all hashingAlgorithms
+    this._hashingAlgorithm = 'sha256';
 
-    if (params.values) this.addValues(params.values);
+    if (values) this.addValues(values);
   }
 
-  get length() {
-    return this._length;
+  get cache() {
+    return this._cache;
   }
 
   get keys() {
     return Object.keys(this._cache);
   }
 
-  get values() {
-    return Object.keys(this._cache).map((key) => this.getValue(key));
+  get length() {
+    return this._length;
   }
 
-  get cache() {
-    return this._cache;
+  get values() {
+    return Object.keys(this._cache).map((key) => this.getValue(key));
   }
 
   addValue(value) {
@@ -73,9 +74,21 @@ export default class HashMap {
     return removedVal ? removedVal : null;
   }
 
+  _validateInput(values) {
+    if (!(isArray(values) || values === null)) throw new TypeError('input should be an array or null.');
+  }
+
   // Method aliases
   add(value) {
     return this.addValue(value);
+  }
+
+  contains(value) {
+    return this.hasValue(value);
+  }
+
+  delete(value) {
+    return this.remove(value);
   }
 
   getKey(value) {
@@ -92,9 +105,5 @@ export default class HashMap {
 
   insert(value) {
     return this.addValue(value);
-  }
-
-  delete(value) {
-    return this.remove(value);
   }
 };
