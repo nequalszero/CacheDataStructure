@@ -10,7 +10,10 @@ chai.use(spies);
 
 const expect = chai.expect;
 
-let cache, spy, errorFn, key, result, cb;
+let cache, errorFn, key, result, cb;
+let spy, spy1, spy2, spy3;
+let node1, node2, node3, node4, node5;
+let length1, length2;
 
 describe('Cache', () => {
   describe('When initializing a cache', () => {
@@ -136,6 +139,26 @@ describe('Cache', () => {
     });
   });
 
+  describe('#contains', () => {
+    before(() => {
+      node1 = new DoublyLinkedListNode(1);
+      node2 = new DoublyLinkedListNode(2);
+      node3 = new DoublyLinkedListNode(3);
+
+      cache = new Cache({values: [node1, node2, node3]});
+      spy = chai.spy.on(cache, 'hasValue');
+      result = cache.contains(node1);
+    });
+
+    it('should call Cache#hasValue with the given value', () => {
+      expect(spy).to.have.been.called.once.with(node1);
+    });
+
+    it('should return the result of calling Cache#contains', () => {
+      expect(result).to.be.equal(cache.hasValue(node1));
+    });
+  });
+
   describe('#createKey', () => {
     before(() => {
       cache = new Cache();
@@ -149,6 +172,26 @@ describe('Cache', () => {
 
     it('should return the value returned by HashMap#createKey', () => {
       expect(key).to.be.equal(cache._hashMap.createKey(1));
+    });
+  });
+
+  describe('#delete', () => {
+    before(() => {
+      node1 = new DoublyLinkedListNode(1);
+      node2 = new DoublyLinkedListNode(2);
+      node3 = new DoublyLinkedListNode(3);
+
+      cache = new Cache({values: [node1, node2, node3]});
+      spy = chai.spy.on(cache, 'remove');
+      result = cache.delete(node1);
+    });
+
+    it('should call the Cache#remove', () => {
+      expect(spy).to.have.been.called.with(node1);
+    });
+
+    it('should return the result of calling Cache#remove', () => {
+      expect(result).to.be.equal(node1);
     });
   });
 
@@ -237,6 +280,46 @@ describe('Cache', () => {
 
     it('should return true if the value is in the cache', () => {
       expect(cache.hasValue(2)).to.be.true;
+    });
+  });
+
+  describe('#include', () => {
+    before(() => {
+      node1 = new DoublyLinkedListNode(1);
+      node2 = new DoublyLinkedListNode(2);
+      node3 = new DoublyLinkedListNode(3);
+
+      cache = new Cache({values: [node1, node2, node3]});
+      spy = chai.spy.on(cache, 'hasValue');
+      result = cache.include(node1);
+    });
+
+    it('should call Cache#hasValue with the given value', () => {
+      expect(spy).to.have.been.called.once.with(node1);
+    });
+
+    it('should return the result of calling Cache#contains', () => {
+      expect(result).to.be.equal(cache.hasValue(node1));
+    });
+  });
+
+  describe('#includes', () => {
+    before(() => {
+      node1 = new DoublyLinkedListNode(1);
+      node2 = new DoublyLinkedListNode(2);
+      node3 = new DoublyLinkedListNode(3);
+
+      cache = new Cache({values: [node1, node2, node3]});
+      spy = chai.spy.on(cache, 'hasValue');
+      result = cache.includes(node1);
+    });
+
+    it('should call Cache#hasValue with the given value', () => {
+      expect(spy).to.have.been.called.once.with(node1);
+    });
+
+    it('should return the result of calling Cache#contains', () => {
+      expect(result).to.be.equal(cache.hasValue(node1));
     });
   });
 
@@ -370,6 +453,90 @@ describe('Cache', () => {
       it('correctly modifies the _linkedList attribute', () => {
         expect(cache._linkedList.first.value).to.be.equal(1);
         expect(cache._linkedList.last.value).to.be.equal(3);
+      });
+    });
+  });
+
+  describe('#remove', () => {
+    describe('When the value does not exist in the cache', () => {
+      before(() => {
+        node1 = new DoublyLinkedListNode(1);
+        node2 = new DoublyLinkedListNode(2);
+        node3 = new DoublyLinkedListNode(3);
+        node4 = new DoublyLinkedListNode(4);
+        node5 = new DoublyLinkedListNode(5);
+
+        cache = new Cache({values: [node1, node2, node3, node4]});
+
+        spy1 = chai.spy.on(cache._hashMap, 'getValue');
+        spy2 = chai.spy.on(cache._hashMap, 'remove');
+        spy3 = chai.spy.on(cache._linkedList, 'remove');
+        key = cache._hashMap.createKey(node5);
+
+        length1 = cache.length;
+        result = cache.remove(node5);
+        length2 = cache.length;
+      });
+
+      it('should check if the value exists in the cache', () => {
+        expect(spy1).to.have.been.called.once.with(key);
+      });
+
+      it('should not call HashMap#remove', () => {
+        expect(spy2).not.to.have.been.called;
+      });
+
+      it('should not call DoublyLinkedList#remove', () => {
+        expect(spy3).not.to.have.been.called;
+      });
+
+      it('should return null', () => {
+        expect(result).to.be.null;
+      });
+
+      it('should not modify the length', () => {
+        expect(length1).to.be.equal(length2);
+      });
+    });
+
+    describe('When the value exists in the cache', () => {
+      before(() => {
+        node1 = new DoublyLinkedListNode(1);
+        node2 = new DoublyLinkedListNode(2);
+        node3 = new DoublyLinkedListNode(3);
+        node4 = new DoublyLinkedListNode(4);
+        node5 = new DoublyLinkedListNode(5);
+
+        cache = new Cache({values: [node1, node2, node3, node4]});
+
+        spy1 = chai.spy.on(cache._hashMap, 'getValue');
+        spy2 = chai.spy.on(cache._hashMap, 'remove');
+        spy3 = chai.spy.on(cache._linkedList, 'remove');
+        key = cache._hashMap.createKey(node3);
+
+        length1 = cache.length;
+        result = cache.remove(node3);
+        length2 = cache.length;
+      });
+
+      it('should check if the value exists in the cache', () => {
+        expect(spy1).to.have.been.called.once.with(key);
+      });
+
+      it('should call HashMap#remove', () => {
+        expect(spy2).to.have.been.called.once.with(node3);
+      });
+
+      it('should call DoublyLinkedList#remove', () => {
+        expect(spy3).to.have.been.called.once.with(node3);
+      });
+
+      it('should return the removed node', () => {
+        expect(result).to.be.equal(node3);
+      });
+
+      it('should decrease the length by 1', () => {
+        expect(length1).to.be.equal(length2 + 1);
       });
     });
   });

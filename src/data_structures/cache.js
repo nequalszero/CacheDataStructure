@@ -67,6 +67,18 @@ export default class Cache {
     return this._addValue(value, 'prepend');
   }
 
+  remove(value) {
+    value = this._getValue(value);
+
+    if (value) {
+      this._hashMap.remove(value);
+      this._linkedList.remove(value);
+      this._length -= 1;
+    }
+
+    return value;
+  }
+
   // Accepts a value and an addMethod, which should be a string of either
   //  'append' or 'prepend'
   _addValue(value, addMethod) {
@@ -99,7 +111,9 @@ export default class Cache {
   }
 
   _getValue(value) {
-    return this._hashMap.getValue(value);
+    const key = this.createKey(value);
+
+    return this._hashMap.getValue(key);
   }
 
   _validateInput(params) {
@@ -117,8 +131,16 @@ export default class Cache {
   }
 
   // Method aliases
+  contains(value) {
+    return this.hasValue(value);
+  }
+
+  delete(value) {
+    return this.remove(value);
+  }
+
   include(value) {
-    return this.includes(value);
+    return this.hasValue(value);
   }
 
   includes(value) {
