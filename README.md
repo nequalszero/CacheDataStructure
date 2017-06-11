@@ -1,8 +1,18 @@
-# Webpack library starter
+## Notes
+### Stuff to work on:
+1. Examine `Cache#_getValue` and potentially change the input from a value to a key, and make `Cache#createKey` calls from `Cache#remove` and `Cache#_addValue`.
+
+### Changes to webpack starter library
+1. Updated `chai` to version 4.
+2. Added `chai-spies`.
+3. Added `lodash`.
+4. Modified `.eslintrc` to ignore spaces on blank lines.
+
+## Webpack library starter
 
 Webpack based boilerplate for producing libraries (Input: ES6, Output: universal library)
 
-## Features
+### Features
 
 * Webpack 2 based.
 * ES6 as a source.
@@ -10,7 +20,7 @@ Webpack based boilerplate for producing libraries (Input: ES6, Output: universal
 * ES6 test setup with [Mocha](http://mochajs.org/) and [Chai](http://chaijs.com/).
 * Linting with [ESLint](http://eslint.org/).
 
-## Process
+### Process
 
 ```
 ES6 source files
@@ -27,7 +37,7 @@ ES6 source files
 
 *Have in mind that you have to build your library before publishing. The files under the `lib` folder are the ones that should be distributed.*
 
-## Getting started
+### Getting started
 
 1. Setting up the name of your library
   * Open `webpack.config.js` file and change the value of `libraryName` variable.
@@ -40,20 +50,20 @@ ES6 source files
 4. Running the tests
   * Run `npm run test`
 
-## Scripts
+### Scripts
 
 * `npm run build` - produces production version of your library under the `lib` folder
 * `npm run dev` - produces development version of your library and runs a watcher
 * `npm run test` - well ... it runs the tests :)
 * `npm run test:watch` - same as above but in a watch mode
 
-## Readings
+### Readings
 
 * [Start your own JavaScript library using webpack and ES6](http://krasimirtsonev.com/blog/article/javascript-library-starter-using-webpack-es6)
 
-## Misc
+### Misc
 
-### An example of using dependencies that shouldn’t be resolved by webpack, but should become dependencies of the resulting bundle
+#### An example of using dependencies that shouldn’t be resolved by webpack, but should become dependencies of the resulting bundle
 
 In the following example we are excluding React and Lodash:
 
