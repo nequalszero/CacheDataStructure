@@ -1,21 +1,26 @@
 // Accepts an optional value.
 export default class DoublyLinkedListNode {
   constructor(value = null) {
-    this._value = value;
-    this._prev = null;
     this._next = null;
+    this._prev = null;
+    this._value = value;
   }
 
-  get value() {
-    return this._value;
+  get next() {
+    return this._next;
   }
 
   get prev() {
     return this._prev;
   }
 
-  get next() {
-    return this._next;
+  get value() {
+    return this._value;
+  }
+
+  set next(node) {
+    if (this._invalidNode(node)) throw new TypeError('Invalid node class.');
+    this._next = node;
   }
 
   set prev(node) {
@@ -23,9 +28,8 @@ export default class DoublyLinkedListNode {
     this._prev = node;
   }
 
-  set next(node) {
-    if (this._invalidNode(node)) throw new TypeError('Invalid node class.');
-    this._next = node;
+  set value(value) {
+    this._value = value;
   }
 
   _invalidNode(node) {

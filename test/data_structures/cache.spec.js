@@ -46,6 +46,11 @@ describe('Cache', () => {
     });
 
     describe('with invalid params', () => {
+      it('should throw a TypeError if params is not an Object', () => {
+        errorFn = () => { cache = new Cache([1, 2, 3]); };
+        expect(errorFn).to.throw(TypeError);
+      });
+
       it('should throw a TypeError if params.values is not an Array', () => {
         errorFn = () => { cache = new Cache({values: {a: 5}}); };
         expect(errorFn).to.throw(TypeError);
@@ -63,6 +68,16 @@ describe('Cache', () => {
     });
   });
 
+  describe('.capacity', () => {
+    it('should return the capacity of the cache', () => {
+      cache = new Cache();
+      expect(cache.capacity).to.be.equal(Infinity);
+
+      cache = new Cache({capacity: 5});
+      expect(cache.capacity).to.be.equal(5);
+    });
+  });
+
   describe('.first', () => {
     it('should return the first item in the cache', () => {
       cache = new Cache({values: [1, 2, 3]});
@@ -76,6 +91,13 @@ describe('Cache', () => {
       cache = new Cache({values: [1, 2, 3]});
       expect(cache.last.value).to.be.equal(3);
       expect(cache.last instanceof DoublyLinkedListNode).to.be.true;
+    });
+  });
+
+  describe('.length', () => {
+    it('should return the length of the cache', () => {
+      cache = new Cache({values: [1, 2, 3]});
+      expect(cache.length).to.be.equal(3);
     });
   });
 
@@ -139,26 +161,6 @@ describe('Cache', () => {
     });
   });
 
-  describe('#contains', () => {
-    before(() => {
-      node1 = new DoublyLinkedListNode(1);
-      node2 = new DoublyLinkedListNode(2);
-      node3 = new DoublyLinkedListNode(3);
-
-      cache = new Cache({values: [node1, node2, node3]});
-      spy = chai.spy.on(cache, 'hasValue');
-      result = cache.contains(node1);
-    });
-
-    it('should call Cache#hasValue with the given value', () => {
-      expect(spy).to.have.been.called.once.with(node1);
-    });
-
-    it('should return the result of calling Cache#contains', () => {
-      expect(result).to.be.equal(cache.hasValue(node1));
-    });
-  });
-
   describe('#createKey', () => {
     before(() => {
       cache = new Cache();
@@ -172,26 +174,6 @@ describe('Cache', () => {
 
     it('should return the value returned by HashMap#createKey', () => {
       expect(key).to.be.equal(cache._hashMap.createKey(1));
-    });
-  });
-
-  describe('#delete', () => {
-    before(() => {
-      node1 = new DoublyLinkedListNode(1);
-      node2 = new DoublyLinkedListNode(2);
-      node3 = new DoublyLinkedListNode(3);
-
-      cache = new Cache({values: [node1, node2, node3]});
-      spy = chai.spy.on(cache, 'remove');
-      result = cache.delete(node1);
-    });
-
-    it('should call the Cache#remove', () => {
-      expect(spy).to.have.been.called.with(node1);
-    });
-
-    it('should return the result of calling Cache#remove', () => {
-      expect(result).to.be.equal(node1);
     });
   });
 
@@ -245,20 +227,20 @@ describe('Cache', () => {
       });
 
       describe('when the reversed boolean is set to true', () => {
-        it('executes the callback when the reversed boolean is set to true', () => {
+        it('executes the callback', () => {
           cache.forEach(cb, true);
 
           expect(result).to.include.ordered.members([3, 2, 1]);
           expect(result.length).to.be.equal(3);
         });
 
-        it('calls DoublyLinkedList#forEach with the cb and the reversed boolean set to true', () => {
+        it('calls DoublyLinkedList#forEach with the cb', () => {
           spy = chai.spy.on(cache._linkedList, 'forEach');
           cache.forEach(cb, true);
           expect(spy).to.have.been.called.once.with(cb, true);
         });
 
-        it('executes the callback when the callback also takes an idx and the reversed boolean is true', () => {
+        it('executes the callback when the callback also takes an idx', () => {
           cb = (node, idx) => result.push(node.value * idx);
           cache.forEach(cb, true);
 
@@ -283,46 +265,6 @@ describe('Cache', () => {
     });
   });
 
-  describe('#include', () => {
-    before(() => {
-      node1 = new DoublyLinkedListNode(1);
-      node2 = new DoublyLinkedListNode(2);
-      node3 = new DoublyLinkedListNode(3);
-
-      cache = new Cache({values: [node1, node2, node3]});
-      spy = chai.spy.on(cache, 'hasValue');
-      result = cache.include(node1);
-    });
-
-    it('should call Cache#hasValue with the given value', () => {
-      expect(spy).to.have.been.called.once.with(node1);
-    });
-
-    it('should return the result of calling Cache#contains', () => {
-      expect(result).to.be.equal(cache.hasValue(node1));
-    });
-  });
-
-  describe('#includes', () => {
-    before(() => {
-      node1 = new DoublyLinkedListNode(1);
-      node2 = new DoublyLinkedListNode(2);
-      node3 = new DoublyLinkedListNode(3);
-
-      cache = new Cache({values: [node1, node2, node3]});
-      spy = chai.spy.on(cache, 'hasValue');
-      result = cache.includes(node1);
-    });
-
-    it('should call Cache#hasValue with the given value', () => {
-      expect(spy).to.have.been.called.once.with(node1);
-    });
-
-    it('should return the result of calling Cache#contains', () => {
-      expect(result).to.be.equal(cache.hasValue(node1));
-    });
-  });
-
   describe('#map', () => {
     describe('When the length is 0', () => {
       beforeEach(() => {
@@ -331,7 +273,7 @@ describe('Cache', () => {
         cb = (node) => result.push(node.value);
       });
 
-      it('returns an empty array when the reversed boolean is left as the default false', () => {
+      it('returns an empty array when the reversed boolean is left as false', () => {
         cache.map(cb);
         expect(result).to.be.empty;
       });
@@ -373,26 +315,113 @@ describe('Cache', () => {
       });
 
       describe('when the reversed boolean is set to true', () => {
-        it('executes the callback when the reversed boolean is set to true', () => {
+        it('executes the callback', () => {
           cache.map(cb, true);
 
           expect(result).to.include.ordered.members([3, 2, 1]);
           expect(result.length).to.be.equal(3);
         });
 
-        it('calls DoublyLinkedList#map with the cb and the reversed boolean set to true', () => {
+        it('calls DoublyLinkedList#map with the cb', () => {
           spy = chai.spy.on(cache._linkedList, 'map');
           cache.map(cb, true);
           expect(spy).to.have.been.called.once.with(cb, true);
         });
 
-        it('executes the callback when the callback also takes an idx and the reversed boolean is true', () => {
+        it('executes the callback when the callback also takes an idx', () => {
           cb = (node, idx) => result.push(node.value * idx);
           cache.map(cb, true);
 
           expect(result).to.include.ordered.members([0, 2, 2]);
           expect(result.length).to.be.equal(3);
         });
+      });
+    });
+  });
+
+  describe('#moveToBack', () => {
+    before(() => {
+      node1 = new DoublyLinkedListNode(1);
+      cache = new Cache({values: [node1, 2, 3]});
+    });
+
+    describe('When the node does not exist', () => {
+      it('should throw an error', () => {
+        errorFn = () => { cache.moveToBack(4); };
+        expect(errorFn).to.throw(Error);
+      });
+    });
+
+    describe('When the node does exist', () => {
+      it('should move the node to the back', () => {
+        cache.moveToBack(1);
+        expect(cache.last).to.be.equal(node1);
+      });
+    });
+  });
+
+  describe('#moveToFront', () => {
+    before(() => {
+      node3 = new DoublyLinkedListNode(3);
+      cache = new Cache({values: [1, 2, node3]});
+    });
+
+    describe('When the node does not exist', () => {
+      it('should throw an error', () => {
+        errorFn = () => { cache.moveToFront(4); };
+        expect(errorFn).to.throw(Error);
+      });
+    });
+
+    describe('When the node does exist', () => {
+      it('should move the node to the front', () => {
+        cache.moveToFront(3);
+        expect(cache.first).to.be.equal(node3);
+      });
+    });
+  });
+
+  describe('#pop', () => {
+    describe('When there are no values in the cache', () => {
+      before(() => {
+        cache = new Cache();
+        spy = chai.spy.on(cache, 'remove');
+
+        result = cache.pop();
+      });
+
+      it('should return null', () => {
+        expect(result).to.be.null;
+      });
+
+      it('should not call #remove', () => {
+        expect(spy).not.to.have.been.called;
+      });
+
+      it('should not modify the length', () => {
+        expect(cache.length).to.be.equal(0);
+      });
+    });
+
+    describe('When there are values in the cache', () => {
+      before(() => {
+        node3 = new DoublyLinkedListNode(3);
+        cache = new Cache({values: [1, 2, node3]});
+        spy = chai.spy.on(cache, 'remove');
+
+        result = cache.pop();
+      });
+
+      it('should return the last element in the cache', () => {
+        expect(result).to.be.equal(node3);
+      });
+
+      it('should call #remove with this._linkedList.last', () => {
+        expect(spy).to.have.been.called.once.with(node3);
+      });
+
+      it('should modify the length', () => {
+        expect(cache.length).to.be.equal(2);
       });
     });
   });
@@ -537,6 +566,51 @@ describe('Cache', () => {
 
       it('should decrease the length by 1', () => {
         expect(length1).to.be.equal(length2 + 1);
+      });
+    });
+  });
+
+  describe('#shift', () => {
+    describe('When there are no values in the cache', () => {
+      before(() => {
+        cache = new Cache();
+        spy = chai.spy.on(cache, 'remove');
+
+        result = cache.shift();
+      });
+
+      it('should return null', () => {
+        expect(result).to.be.null;
+      });
+
+      it('should not call #remove', () => {
+        expect(spy).not.to.have.been.called;
+      });
+
+      it('should not modify the length', () => {
+        expect(cache.length).to.be.equal(0);
+      });
+    });
+
+    describe('When there are values in the cache', () => {
+      before(() => {
+        node1 = new DoublyLinkedListNode(1);
+        cache = new Cache({values: [node1, 2, 3]});
+        spy = chai.spy.on(cache, 'remove');
+
+        result = cache.shift();
+      });
+
+      it('should return the last element in the cache', () => {
+        expect(result).to.be.equal(node1);
+      });
+
+      it('should call #remove with this._linkedList.last', () => {
+        expect(spy).to.have.been.called.once.with(node1);
+      });
+
+      it('should modify the length', () => {
+        expect(cache.length).to.be.equal(2);
       });
     });
   });

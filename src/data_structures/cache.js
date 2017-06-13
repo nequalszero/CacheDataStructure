@@ -2,6 +2,7 @@ import DoublyLinkedList from './doubly_linked_list';
 import HashMap from './hash_map';
 import isArray from 'lodash/isArray';
 import isInteger from 'lodash/isInteger';
+import isPlainObject from 'lodash/isPlainObject';
 
 // Accepts a params Object with keys:
 //   values: array of starting values, and
@@ -11,10 +12,9 @@ export default class Cache {
     this._validateInput(params);
     this._hashMap = new HashMap();
     this._linkedList = new DoublyLinkedList();
-    this._length = 0;
     this._capacity = params.capacity ? params.capacity : Infinity;
 
-    if (params.values) this.addValues(params.values);
+    if (params.values) this._addStartingValues(params.values);
   }
 
   get capacity() {
@@ -22,23 +22,17 @@ export default class Cache {
   }
 
   get first() {
-    if (this._length === 0) return null;
+    if (this._linkedList.length === 0) return null;
     return this._linkedList.first;
   }
 
   get last() {
-    if (this._length === 0) return null;
+    if (this._linkedList.length === 0) return null;
     return this._linkedList.last;
   }
 
   get length() {
-    return this._length;
-  }
-
-  addValues(values) {
-    values.forEach((value) => {
-      this.append(value);
-    });
+    return this._linkedList.length;
   }
 
   append(value) {
@@ -50,17 +44,48 @@ export default class Cache {
   }
 
   forEach(cb, reversed = false) {
-    if (this._length === 0) return;
+    if (this._linkedList.length === 0) return;
     this._linkedList.forEach(cb, reversed);
   }
 
+  getNode(value) {
+    const key = this.createKey(value);
+
+    return this._hashMap.getValue(key);
+  }
+
   hasValue(value) {
-    return this._hashMap.includes(value);
+    const key = this.createKey(value);
+
+    return this._hashMap.hasKey(key);
   }
 
   map(cb, reversed = false) {
-    if (this._length === 0) return [];
+    if (this._linkedList.length === 0) return [];
     return this._linkedList.map(cb, reversed);
+  }
+
+  moveToBack(value) {
+    const node = this.remove(value);
+
+    if (!node) throw new Error('Cache#moveToBack- node not found');
+
+    this.append(node);
+  }
+
+  moveToFront(value) {
+    const node = this.remove(value);
+
+    if (!node) throw new Error('Cache#moveToFront - node not found');
+
+    this.prepend(node);
+  }
+
+  // Removes the last element from the cache.
+  pop() {
+    if (this._linkedList.length === 0) return null;
+
+    return this.remove(this._linkedList.last);
   }
 
   prepend(value) {
@@ -68,21 +93,69 @@ export default class Cache {
   }
 
   remove(value) {
-    value = this._getValue(value);
+    const node = this.getNode(value);
 
-    if (value) {
-      this._hashMap.remove(value);
-      this._linkedList.remove(value);
-      this._length -= 1;
+    if (node) {
+      this._hashMap.remove(node);
+      this._linkedList.remove(node);
     }
 
-    return value;
+    return node;
+  }
+
+  // Removes the first element from the cache.
+  shift() {
+    if (this._linkedList.length === 0) return null;
+
+    return this.remove(this._linkedList.first);
+  }
+
+  // Method aliases
+  
+  add(value) {
+    return this.prepend(value);
+  }
+
+  contains(value) {
+    return this.hasValue(value);
+  }
+
+  delete(value) {
+    return this.remove(value);
+  }
+
+  has(value) {
+    return this.hasValue(value);
+  }
+
+  include(value) {
+    return this.hasValue(value);
+  }
+
+  includes(value) {
+    return this.hasValue(value);
+  }
+
+  push(value) {
+    return this.append(value);
+  }
+
+  unshift(value) {
+    return this.prepend(value);
+  }
+
+  // Private Methods
+
+  _addStartingValues(values) {
+    values.forEach((value) => {
+      this.append(value);
+    });
   }
 
   // Accepts a value and an addMethod, which should be a string of either
   //  'append' or 'prepend'
   _addValue(value, addMethod) {
-    let node = this._getValue(value);
+    let node = this.getNode(value);
 
     if (node) {
       this._linkedList.remove(node);
@@ -90,8 +163,7 @@ export default class Cache {
     } else {
       node = this._linkedList[addMethod](value);
       this._hashMap.addValue(node);
-      this._length += 1;
-      if (this._length > this._capacity) this._eject(addMethod);
+      if (this._linkedList.length > this._capacity) this._eject(addMethod);
     }
 
     return node;
@@ -100,23 +172,25 @@ export default class Cache {
   // If adding to the end (addMethod = 'append'), remove from the front.
   // If adding to the front (addMethod = 'prepend'), remove from the end.
   _eject(addMethod) {
+    if (this._linkedList.length === 0) return null;
+    let removedNode;
+
     if (addMethod === 'append') {
-      this._hashMap.remove(this._linkedList.first);
-      this._linkedList.remove(this._linkedList.first);
+      removedNode = this.remove(this._linkedList.first);
     } else if (addMethod === 'prepend') {
-      this._hashMap.remove(this._linkedList.last);
-      this._linkedList.remove(this._linkedList.last);
+      removedNode = this.remove(this._linkedList.last);
+    } else {
+      throw new TypeError(`Error in Cache#eject: unrecognized input ${addMethod}`);
     }
-    this._length -= 1;
-  }
 
-  _getValue(value) {
-    const key = this.createKey(value);
-
-    return this._hashMap.getValue(key);
+    return removedNode;
   }
 
   _validateInput(params) {
+    const paramsTypeError = new TypeError('Invalid input type for params');
+
+    if (!isPlainObject(params)) throw paramsTypeError;
+
     const keys = Object.keys(params);
     const valuesError = new TypeError('Invalid input type for params.values');
     const capacityTypeError = new TypeError('Invalid input type for params.capacity');
@@ -128,22 +202,5 @@ export default class Cache {
       if (!isInteger(params.capacity)) throw capacityTypeError;
       if (params.capacity <= 0) throw capacityRangeError;
     }
-  }
-
-  // Method aliases
-  contains(value) {
-    return this.hasValue(value);
-  }
-
-  delete(value) {
-    return this.remove(value);
-  }
-
-  include(value) {
-    return this.hasValue(value);
-  }
-
-  includes(value) {
-    return this.hasValue(value);
   }
 };

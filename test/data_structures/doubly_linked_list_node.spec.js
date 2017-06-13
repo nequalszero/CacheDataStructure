@@ -111,6 +111,14 @@ describe('DoublyLinkedListNode', () => {
     });
   });
 
+  describe('When setting the value attribute', () => {
+    it('should return node2 for node1.next', () => {
+      node1 = new DoublyLinkedListNode(1);
+      node1.value = 5;
+      expect(node1.value).to.be.equal(5);
+    });
+  });
+
   describe('#toString', () => {
     it('should return the result of calling #toString on the value attribute', () => {
       node1 = new DoublyLinkedListNode({a: 5});

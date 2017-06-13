@@ -1,7 +1,4 @@
 ## Notes
-### Stuff to work on:
-1. Examine `Cache#_getValue` and potentially change the input from a value to a key, and make `Cache#createKey` calls from `Cache#remove` and `Cache#_addValue`.
-
 ### Changes to webpack starter library
 1. Updated `chai` to version 4.
 2. Added `chai-spies`.

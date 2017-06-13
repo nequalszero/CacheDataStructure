@@ -60,7 +60,7 @@ export default class HashMap {
 
   hasValue(value) {
     const key = this.createKey(value);
-
+    
     return this.hasKey(key);
   }
 
