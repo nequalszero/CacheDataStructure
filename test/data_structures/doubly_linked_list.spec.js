@@ -11,7 +11,7 @@ chai.use(spies);
 const expect = chai.expect;
 
 let linkedList, firstNode, lastNode, spy, errorFn;
-let node1, node2, node3, removedNode, result, cb;
+let node1, node2, node3, result, cb;
 
 describe('DoublyLinkedList', () => {
   describe('When initializing a doubly linked list', () => {
@@ -24,7 +24,7 @@ describe('DoublyLinkedList', () => {
 
     describe('with an array of values', () => {
       it('should have the correct length', () => {
-        linkedList = new DoublyLinkedList([1, 2, 3]);
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
         expect(linkedList.length).to.be.equal(3);
       });
     });
@@ -34,19 +34,29 @@ describe('DoublyLinkedList', () => {
         node1 = new DoublyLinkedListNode(1);
         node2 = new DoublyLinkedListNode(2);
         node3 = new DoublyLinkedListNode(3);
-        linkedList = new DoublyLinkedList([node1, node2, node3]);
+        linkedList = new DoublyLinkedList({values: [node1, node2, node3]});
         expect(linkedList.length).to.be.equal(3);
       });
     });
 
-    describe('with a non-array input', () => {
+    describe('When the input type is invalid', () => {
       it('should throw a TypeError for numbers', () => {
-        errorFn = () => {linkedList = new DoublyLinkedList(5);};
+        errorFn = () => { linkedList = new DoublyLinkedList(5); };
         expect(errorFn).to.throw(TypeError);
       });
 
-      it('should throw a TypeError for objects', () => {
-        errorFn = () => {linkedList = new DoublyLinkedList({a: 5});};
+      it('should throw a TypeError for arrays', () => {
+        errorFn = () => { linkedList = new DoublyLinkedList([1, 2]); };
+        expect(errorFn).to.throw(TypeError);
+      });
+
+      it('should throw a TypeError for non-Function comparisonCb', () => {
+        errorFn = () => { linkedList = new DoublyLinkedList({comparisonCb: {a: 5}}); };
+        expect(errorFn).to.throw(TypeError);
+      });
+
+      it('should throw a TypeError for non-array values', () => {
+        errorFn = () => { linkedList = new DoublyLinkedList({values: {a: 5}}); };
         expect(errorFn).to.throw(TypeError);
       });
     });
@@ -61,7 +71,7 @@ describe('DoublyLinkedList', () => {
     });
 
     it('returns the first node when the list has elements', () => {
-      linkedList = new DoublyLinkedList([1, 2, 3]);
+      linkedList = new DoublyLinkedList({values: [1, 2, 3]});
       firstNode = linkedList.first;
 
       expect(firstNode.value).to.be.eq(1);
@@ -77,7 +87,7 @@ describe('DoublyLinkedList', () => {
     });
 
     it('returns the last node when the list has elements', () => {
-      linkedList = new DoublyLinkedList([1, 2, 3]);
+      linkedList = new DoublyLinkedList({values: [1, 2, 3]});
       lastNode = linkedList.last;
 
       expect(lastNode.value).to.be.eq(3);
@@ -128,24 +138,6 @@ describe('DoublyLinkedList', () => {
     });
   });
 
-  describe('#delete', () => {
-    before(() => {
-      node2 = new DoublyLinkedListNode(2);
-      linkedList = new DoublyLinkedList([1, node2, 3]);
-      spy = chai.spy.on(linkedList, 'remove');
-      removedNode = linkedList.delete(node2);
-    });
-
-    it('should call #remove with the given node', () => {
-      expect(spy).to.have.been.called.once.with(node2);
-    });
-
-    it('should return the deleted node', () => {
-      expect(removedNode instanceof DoublyLinkedListNode).to.be.true;
-      expect(removedNode.value).to.be.equal(2);
-    });
-  });
-
   describe('#forEach', () => {
     describe('When the length is 0', () => {
       beforeEach(() => {
@@ -167,7 +159,7 @@ describe('DoublyLinkedList', () => {
 
     describe('When the length is greater than 0', () => {
       beforeEach(() => {
-        linkedList = new DoublyLinkedList([1, 2, 3]);
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
         result = [];
         cb = (node) => result.push(node.value);
       });
@@ -224,7 +216,7 @@ describe('DoublyLinkedList', () => {
 
     describe('When the length is greater than 0', () => {
       beforeEach(() => {
-        linkedList = new DoublyLinkedList([1, 2, 3]);
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
         cb = (node) => node.value + 1;
       });
 
@@ -268,7 +260,7 @@ describe('DoublyLinkedList', () => {
 
     describe('When the list lenth is greater than 0', () => {
       before(() => {
-        linkedList = new DoublyLinkedList([1, 2, 3]);
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
         node3 = linkedList.pop();
         node2 = linkedList.pop();
       });
@@ -318,23 +310,6 @@ describe('DoublyLinkedList', () => {
     });
   });
 
-  describe('#push', () => {
-    before(() => {
-      linkedList = new DoublyLinkedList();
-      spy = chai.spy.on(linkedList, 'append');
-      node1 = linkedList.push(1);
-    });
-
-    it('should call #append with the given value', () => {
-      expect(spy).to.have.been.called.once.with(1);
-    });
-
-    it('should return the new node', () => {
-      expect(node1 instanceof DoublyLinkedListNode).to.be.true;
-      expect(node1.value).to.be.equal(1);
-    });
-  });
-
   describe('#shift', () => {
     it('should return null when the list length is 0', () => {
       linkedList = new DoublyLinkedList();
@@ -343,7 +318,7 @@ describe('DoublyLinkedList', () => {
 
     describe('When the list lenth is greater than 0', () => {
       before(() => {
-        linkedList = new DoublyLinkedList([1, 2, 3]);
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
         node1 = linkedList.shift();
         node2 = linkedList.shift();
       });
@@ -363,23 +338,6 @@ describe('DoublyLinkedList', () => {
       it('should properly decrease the length attribute', () => {
         expect(linkedList.length).to.be.eq(1);
       });
-    });
-  });
-
-  describe('#unshift', () => {
-    before(() => {
-      linkedList = new DoublyLinkedList();
-      spy = chai.spy.on(linkedList, 'prepend');
-      node1 = linkedList.unshift(1);
-    });
-
-    it('should call #prepend with the given value', () => {
-      expect(spy).to.have.been.called.once.with(1);
-    });
-
-    it('should return the new node', () => {
-      expect(node1 instanceof DoublyLinkedListNode).to.be.true;
-      expect(node1.value).to.be.equal(1);
     });
   });
 });

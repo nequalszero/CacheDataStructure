@@ -1,17 +1,21 @@
 import DoublyLinkedListNode from './doubly_linked_list_node';
 import isArray from 'lodash/isArray';
+import isPlainObject from 'lodash/isPlainObject';
 
 // Accepts an optional array of starting values.
 export default class DoublyLinkedList {
-  constructor(values = null) {
-    this._validateInput(values);
+  constructor(params = null) {
+    this._validateInput(params);
+    params = Object.assign({values: null, comparisonCb: (a, b) => (a === b)}, params);
+
     this._head = new DoublyLinkedListNode();
     this._tail = new DoublyLinkedListNode();
     this._tail.prev = this._head;
     this._head.next = this._tail;
     this._length = 0;
+    this._comparisonCb = params.comparisonCb;
 
-    if (values) this.addValues(values);
+    if (params.values) this.addValues(params.values);
   }
 
   get last() {
@@ -28,12 +32,14 @@ export default class DoublyLinkedList {
     return this._length;
   }
 
+  // Adds values one after another to the back of the cache.
   addValues(values) {
     values.forEach((value) => {
       this.append(value);
     });
   }
 
+  // Adds a value to the rear of the cache.
   append(value) {
     const node = value instanceof DoublyLinkedListNode ? value : new DoublyLinkedListNode(value);
     const oldLast = this._tail.prev;
@@ -60,6 +66,16 @@ export default class DoublyLinkedList {
     }
   }
 
+  includes(value) {
+    if (this._length === 0) return false;
+
+    let found = false;
+    const comparisonNode = value instanceof DoublyLinkedListNode ? value : new DoublyLinkedListNode(value);
+
+    this.forEach((node) => { if (this._comparisonCb(node, comparisonNode)) found = true; });
+    return found;
+  }
+
   map(cb, reversed = false) {
     const result = [];
     const mapCb = (node, idx) => result.push(cb(node, idx));
@@ -69,6 +85,7 @@ export default class DoublyLinkedList {
     return result;
   }
 
+  // Removes a node from the back of the cache.
   pop() {
     if (this.length === 0) return null;
     const lastNode = this.last;
@@ -82,6 +99,7 @@ export default class DoublyLinkedList {
     return lastNode;
   }
 
+  // Adds a value to the front of the cache.
   prepend(value) {
     const node = value instanceof DoublyLinkedListNode ? value : new DoublyLinkedListNode(value);
     const oldFirst = this._head.next;
@@ -95,6 +113,7 @@ export default class DoublyLinkedList {
     return node;
   }
 
+  // Removes a node from the cache.
   remove(node) {
     node.next.prev = node.prev;
     node.prev.next = node.next;
@@ -105,6 +124,7 @@ export default class DoublyLinkedList {
     return node;
   }
 
+  // Removes a node from the front of the cache.
   shift() {
     if (this.length === 0) return null;
     const firstNode = this.first;
@@ -126,8 +146,19 @@ export default class DoublyLinkedList {
     };
   }
 
-  _validateInput(values) {
-    if (!(isArray(values) || values === null)) throw new TypeError('input should be an array or null.');
+  _validateInput(params) {
+    if (!(isPlainObject(params) || params === null)) {
+      throw new TypeError('params should be an object or null.');
+    } else if (params) {
+      const {values, comparisonCb} = params;
+      const valuesError = new TypeError('values should be an array or null.');
+      const comparisonCbError = new TypeError('comparisonCb should be a Function or null.');
+
+      console.log('comparisonCb', comparisonCb);
+
+      if (!(isArray(values) || values === undefined)) throw valuesError;
+      if (!(comparisonCb instanceof Function || comparisonCb === undefined)) throw comparisonCbError;
+    }
   }
 
   // Method aliases

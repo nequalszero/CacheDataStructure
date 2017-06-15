@@ -10,9 +10,11 @@ import isPlainObject from 'lodash/isPlainObject';
 export default class Cache {
   constructor(params = {}) {
     this._validateInput(params);
+    params = Object.assign({capacity: Infinity, values: null}, params);
+
     this._hashMap = new HashMap();
     this._linkedList = new DoublyLinkedList();
-    this._capacity = params.capacity ? params.capacity : Infinity;
+    this._capacity = params.capacity;
 
     if (params.values) this._addStartingValues(params.values);
   }
@@ -111,7 +113,7 @@ export default class Cache {
   }
 
   // Method aliases
-  
+
   add(value) {
     return this.prepend(value);
   }

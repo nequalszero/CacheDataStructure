@@ -5,7 +5,7 @@ const UglifyJsPlugin = webpack.optimize.UglifyJsPlugin;
 const path = require('path');
 const env = require('yargs').argv.env; // use --env with webpack 2
 
-let libraryName = 'cache_data_structure';
+let libraryName = 'data_structures';
 
 let plugins = [], outputFile;
 
@@ -41,8 +41,20 @@ const config = {
     ]
   },
   resolve: {
-    modules: [path.resolve('./src')],
+    modules: [path.resolve('./src'), 'node_modules'],
     extensions: ['.json', '.js']
+  },
+  externals: {
+    crypto: 'crypto',
+    // Use more complicated mapping for lodash.
+    // We need to access it differently depending
+    // on the environment.
+    lodash: {
+      commonjs: 'lodash',
+      commonjs2: 'lodash',
+      amd: '_',
+      root: '_'
+    }
   },
   plugins: plugins
 };

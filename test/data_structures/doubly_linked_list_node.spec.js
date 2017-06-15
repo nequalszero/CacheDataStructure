@@ -123,6 +123,9 @@ describe('DoublyLinkedListNode', () => {
     it('should return the result of calling #toString on the value attribute', () => {
       node1 = new DoublyLinkedListNode({a: 5});
       expect(node1.toString()).to.be.equal({a: 5}.toString());
+
+      node2 = new DoublyLinkedListNode({value: 5, toString: () => { return '4'; }});
+      expect(node2.toString()).to.be.equal('4');
     });
   });
 });
