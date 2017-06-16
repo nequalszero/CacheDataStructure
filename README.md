@@ -3,7 +3,6 @@
 ## Usage
 Installation via `npm install --save `
 
-
 ## Available Structures
 ### Doubly Linked List Node
 ```javascript
@@ -17,3 +16,6 @@ toString(): // calls toString on this.value
 ```
 
 ### Doubly Linked List
+```javascript
+constructor(values = null)
+```

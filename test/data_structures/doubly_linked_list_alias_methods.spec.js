@@ -13,7 +13,7 @@ const expect = chai.expect;
 let linkedList, spy;
 let node1, node2, removedNode;
 
-describe('DoublyLinkedList', () => {
+describe('DoublyLinkedList alias methods', () => {
   describe('#add', () => {
     before(() => {
       linkedList = new DoublyLinkedList();
