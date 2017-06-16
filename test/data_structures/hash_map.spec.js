@@ -12,7 +12,7 @@ chai.use(spies);
 const expect = chai.expect;
 
 let hashMap, expectedKey, key1, key2, spy;
-let value1, value2, value4;
+let result, value1, value2, value4;
 
 describe('HashMap', () => {
   describe('When initializing a hash map', () => {
@@ -28,22 +28,6 @@ describe('HashMap', () => {
         hashMap = new HashMap([1, 2, 3]);
         expect(hashMap.length).to.be.equal(3);
       });
-    });
-  });
-
-  describe('#add', () => {
-    before(() => {
-      hashMap = new HashMap();
-      spy = chai.spy.on(hashMap, 'addValue');
-      value1 = hashMap.add(1);
-    });
-
-    it('should call #addValue with the given value', () => {
-      expect(spy).to.have.been.called.once.with(1);
-    });
-
-    it('should return the newly added value', () => {
-      expect(value1).to.be.equal(1);
     });
   });
 
@@ -63,40 +47,30 @@ describe('HashMap', () => {
     });
   });
 
-  describe('#contains', () => {
-    it('should call #hasValue with the given value', () => {
-      hashMap = new HashMap([1, 2, 3]);
-      spy = chai.spy.on(hashMap, 'hasValue');
-      hashMap.contains(1);
-
-      expect(spy).to.have.been.called.once.with(1);
-    });
-  });
-
   describe('#createKey', () => {
     before(() => {
       hashMap = new HashMap();
     });
 
     it('uses crypto#createHash with a hex digest', () => {
-      key1 = hashMap.createKey(1);
-      expectedKey = crypto.createHash('sha256').update('1').digest('hex');
+      key1 = hashMap.createKey(123456);
+      expectedKey = crypto.createHash('sha256').update('123456').digest('hex');
 
       expect(key1).to.be.equal(expectedKey);;
     });
 
     it('creates a unique key given an integer', () => {
-      key1 = hashMap.createKey(1);
-      key2 = hashMap.createKey(1);
+      key1 = hashMap.createKey(123);
+      key2 = hashMap.createKey(123);
 
       expect(key1).to.be.equal(key2);
     });
 
-    it('does not ignore the order of array elements', () => {
-      key1 = hashMap.createKey(['a', 1]);
-      key2 = hashMap.createKey([1, 'a']);
+    it('creates a unique key given an array of integers', () => {
+      key1 = hashMap.createKey([1, 2, 3, 4, 5]);
+      key2 = hashMap.createKey([1, 2, 3, 4, 5]);
 
-      expect(key1).to.not.equal(key2);
+      expect(key1).to.be.equal(key2);
     });
 
     it('creates a unique key for objects', () => {
@@ -105,31 +79,19 @@ describe('HashMap', () => {
 
       expect(key1).to.be.equal(key2);
     });
-  });
 
-  describe('#delete', () => {
-    before(() => {
-      hashMap = new HashMap([1, 2, 3]);
-      spy = chai.spy.on(hashMap, 'remove');
-      value1 = hashMap.delete(1);
+    it('creates a unique key given an array of objects', () => {
+      key1 = hashMap.createKey([{id: 1, name: 'Alan'}, {name: 'Jane', id: 2}, {id: 3, name: 'Kelley'}]);
+      key2 = hashMap.createKey([{id: 1, name: 'Alan'}, {id: 2, name: 'Jane'}, {name: 'Kelley', id: 3}]);
+
+      expect(key1).to.be.equal(key2);
     });
 
-    it('should call #remove with the given value', () => {
-      expect(spy).to.have.been.called.once.with(1);
-    });
+    it('does not ignore the ordering of array elements', () => {
+      key1 = hashMap.createKey(['a', 1]);
+      key2 = hashMap.createKey([1, 'a']);
 
-    it('should return the value returned by the #remove method', () => {
-      expect(value1).to.be.equal(1);
-    });
-  });
-
-  describe('#getKey', () => {
-    it('should call #createKey with the given value', () => {
-      hashMap = new HashMap();
-      spy = chai.spy.on(hashMap, 'createKey');
-      hashMap.getKey(1);
-
-      expect(spy).to.have.been.called.once.with(1);
+      expect(key1).to.not.equal(key2);
     });
   });
 
@@ -159,46 +121,40 @@ describe('HashMap', () => {
   });
 
   describe('#hasValue', () => {
-    it('should return true if the cache has the key', () => {
-      hashMap = new HashMap([1, 2, 3]);
+    describe('When the value exists', () => {
+      before(() => {
+        hashMap = new HashMap([1, 2, 3]);
+      });
 
-      expect(hashMap.hasValue(1)).to.be.true;
-    });
-  });
+      it('should call createKey with the value passed in', () => {
+        spy = chai.spy.on(hashMap, 'createKey');
+        hashMap.hasValue(1);
 
-  describe('#include', () => {
-    it('should call #hasValue with the given value', () => {
-      hashMap = new HashMap([1, 2, 3]);
-      spy = chai.spy.on(hashMap, 'hasValue');
-      hashMap.include(1);
+        expect(spy).to.have.been.called.once.with(1);
+      });
 
-      expect(spy).to.have.been.called.once.with(1);
-    });
-  });
+      it('should call hasKey with the key associated with the value passed in', () => {
+        key1 = hashMap.createKey(1);
+        spy = chai.spy.on(hashMap, 'hasKey');
+        hashMap.hasValue(1);
 
-  describe('#includes', () => {
-    it('should call #hasValue with the given value', () => {
-      hashMap = new HashMap([1, 2, 3]);
-      spy = chai.spy.on(hashMap, 'hasValue');
-      hashMap.includes(1);
+        expect(spy).to.have.been.called.once.with(key1);
+      });
 
-      expect(spy).to.have.been.called.once.with(1);
-    });
-  });
-
-  describe('#insert', () => {
-    before(() => {
-      hashMap = new HashMap();
-      spy = chai.spy.on(hashMap, 'addValue');
-      value1 = hashMap.insert(1);
+      it('should return true', () => {
+        result = hashMap.hasValue(1);
+        expect(result).to.be.true;
+      });
     });
 
-    it('should call #addValue with the given value', () => {
-      expect(spy).to.have.been.called.once.with(1);
-    });
+    describe('When the value does not exist', () => {
+      before(() => {
+        hashMap = new HashMap([1, 2, 3]);
+      });
 
-    it('should return the newly added value', () => {
-      expect(value1).to.be.equal(1);
+      it('should return false', () => {
+        expect(hashMap.hasValue(5)).to.be.false;
+      });
     });
   });
 
