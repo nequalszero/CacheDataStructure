@@ -11,7 +11,7 @@ chai.use(spies);
 const expect = chai.expect;
 
 let linkedList, firstNode, lastNode, errorFn;
-let node1, node2, node3, result, cb;
+let node1, node2, node3, result, cb, newCb;
 
 describe('DoublyLinkedList', () => {
   describe('When initializing a doubly linked list', () => {
@@ -62,35 +62,80 @@ describe('DoublyLinkedList', () => {
     });
   });
 
-  describe('.first', () => {
-    it('returns null when the list is empty', () => {
-      linkedList = new DoublyLinkedList();
-      firstNode = linkedList.first;
+  describe('getter methods', () => {
+    describe('#comparisonCb', () => {
+      it('returns the comparisonCb', () => {
+        cb = (a, b) => (a.value === b.value);
+        linkedList = new DoublyLinkedList({comparisonCb: cb});
 
-      expect(firstNode).to.be.equal(null);
+        expect(linkedList.comparisonCb).to.be.equal(cb);
+      });
     });
 
-    it('returns the first node when the list has elements', () => {
-      linkedList = new DoublyLinkedList({values: [1, 2, 3]});
-      firstNode = linkedList.first;
+    describe('#first', () => {
+      it('returns null when the list is empty', () => {
+        linkedList = new DoublyLinkedList();
+        firstNode = linkedList.first;
 
-      expect(firstNode.value).to.be.eq(1);
+        expect(firstNode).to.be.equal(null);
+      });
+
+      it('returns the first node when the list has elements', () => {
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
+        firstNode = linkedList.first;
+
+        expect(firstNode.value).to.be.eq(1);
+      });
+    });
+
+    describe('#last', () => {
+      it('returns null when the list is empty', () => {
+        linkedList = new DoublyLinkedList();
+        lastNode = linkedList.last;
+
+        expect(lastNode).to.be.equal(null);
+      });
+
+      it('returns the last node when the list has elements', () => {
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
+        lastNode = linkedList.last;
+
+        expect(lastNode.value).to.be.eq(3);
+      });
+    });
+
+    describe('#length', () => {
+      it('returns 0 when the list is empty', () => {
+        linkedList = new DoublyLinkedList();
+
+        expect(linkedList.length).to.be.equal(0);
+      });
+
+      it('returns the correct length when the list has elements', () => {
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
+
+        expect(linkedList.length).to.be.eq(3);
+      });
     });
   });
 
-  describe('.last', () => {
-    it('returns null when the list is empty', () => {
-      linkedList = new DoublyLinkedList();
-      lastNode = linkedList.last;
+  describe('Setter methods', () => {
+    describe('#comparisonCb', () => {
+      it('allows the comparisonCb to be overridden', () => {
+        cb = (a, b) => (a.value === b.value);
+        linkedList = new DoublyLinkedList({comparisonCb: cb});
 
-      expect(lastNode).to.be.equal(null);
-    });
+        newCb = (a, b) => (a.value.id === b.value.id);
+        linkedList.comparisonCb = newCb;
 
-    it('returns the last node when the list has elements', () => {
-      linkedList = new DoublyLinkedList({values: [1, 2, 3]});
-      lastNode = linkedList.last;
+        expect(linkedList.comparisonCb).to.be.equal(newCb);
+      });
 
-      expect(lastNode.value).to.be.eq(3);
+      it('throws a TypeError if the new callback is not a function', () => {
+        linkedList = new DoublyLinkedList();
+        errorFn = () => { linkedList.comparisonCb = {a: 5}; };
+        expect(errorFn).to.throw(TypeError);
+      });
     });
   });
 
