@@ -10,7 +10,7 @@ chai.use(spies);
 
 const expect = chai.expect;
 
-let linkedList, firstNode, lastNode, spy, errorFn;
+let linkedList, firstNode, lastNode, errorFn;
 let node1, node2, node3, result, cb;
 
 describe('DoublyLinkedList', () => {
