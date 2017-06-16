@@ -21,6 +21,10 @@ export default class DoublyLinkedList {
     if (params.values) this._addInitialValues(params.values);
   }
 
+  get comparisonCb() {
+    return this._comparisonCb;
+  }
+
   get last() {
     if (this._length === 0) return null;
     return this._tail.prev;
@@ -33,6 +37,11 @@ export default class DoublyLinkedList {
 
   get length() {
     return this._length;
+  }
+
+  set comparisonCb(cb) {
+    if (!(typeof cb === 'function')) throw new TypeError('given cb is not a function');
+    this._comparisonCb = cb;
   }
 
   // Adds a value to the rear of the cache.
@@ -179,7 +188,7 @@ export default class DoublyLinkedList {
       console.log('comparisonCb', comparisonCb);
 
       if (!(isArray(values) || values === undefined)) throw valuesError;
-      if (!(comparisonCb instanceof Function || comparisonCb === undefined)) throw comparisonCbError;
+      if (!(typeof comparisonCb === 'function' || comparisonCb === undefined)) throw comparisonCbError;
     }
   }
 }
