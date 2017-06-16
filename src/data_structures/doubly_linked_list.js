@@ -6,7 +6,10 @@ import isPlainObject from 'lodash/isPlainObject';
 export default class DoublyLinkedList {
   constructor(params = null) {
     this._validateInput(params);
-    params = Object.assign({values: null, comparisonCb: (a, b) => (a === b)}, params);
+    params = Object.assign(
+      {values: null, comparisonCb: (a, b) => (a.value === b.value)},
+      params
+    );
 
     this._head = new DoublyLinkedListNode();
     this._tail = new DoublyLinkedListNode();
@@ -15,7 +18,7 @@ export default class DoublyLinkedList {
     this._length = 0;
     this._comparisonCb = params.comparisonCb;
 
-    if (params.values) this.addValues(params.values);
+    if (params.values) this._addInitialValues(params.values);
   }
 
   get last() {
@@ -30,13 +33,6 @@ export default class DoublyLinkedList {
 
   get length() {
     return this._length;
-  }
-
-  // Adds values one after another to the back of the cache.
-  addValues(values) {
-    values.forEach((value) => {
-      this.append(value);
-    });
   }
 
   // Adds a value to the rear of the cache.
@@ -138,6 +134,32 @@ export default class DoublyLinkedList {
     return firstNode;
   }
 
+  // Method aliases
+  add(value) {
+    return this.append(value);
+  }
+
+  delete(node) {
+    return this.remove(node);
+  }
+
+  push(value) {
+    return this.append(value);
+  }
+
+  unshift(value) {
+    return this.prepend(value);
+  }
+
+  // Private methods
+
+  // Adds values one after another to the back of the cache.
+  _addInitialValues(values) {
+    values.forEach((value) => {
+      this.append(value);
+    });
+  }
+
   _loopConditions(reverseOrder) {
     return {
       startingNode: reverseOrder ? this._tail : this._head,
@@ -159,22 +181,5 @@ export default class DoublyLinkedList {
       if (!(isArray(values) || values === undefined)) throw valuesError;
       if (!(comparisonCb instanceof Function || comparisonCb === undefined)) throw comparisonCbError;
     }
-  }
-
-  // Method aliases
-  add(value) {
-    return this.append(value);
-  }
-
-  delete(node) {
-    return this.remove(node);
-  }
-
-  push(value) {
-    return this.append(value);
-  }
-
-  unshift(value) {
-    return this.prepend(value);
   }
 }

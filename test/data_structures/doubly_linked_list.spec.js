@@ -94,23 +94,6 @@ describe('DoublyLinkedList', () => {
     });
   });
 
-  describe('#add', () => {
-    before(() => {
-      linkedList = new DoublyLinkedList();
-      spy = chai.spy.on(linkedList, 'append');
-      node1 = linkedList.add(1);
-    });
-
-    it('should call #append with the given value', () => {
-      expect(spy).to.have.been.called.once.with(1);
-    });
-
-    it('should return the new node', () => {
-      expect(node1 instanceof DoublyLinkedListNode).to.be.true;
-      expect(node1.value).to.be.equal(1);
-    });
-  });
-
   describe('#append', () => {
     before(() => {
       linkedList = new DoublyLinkedList();
@@ -192,6 +175,43 @@ describe('DoublyLinkedList', () => {
 
         expect(result).to.include.ordered.members([0, 2, 2]);
         expect(result.length).to.be.equal(3);
+      });
+    });
+  });
+
+  describe('#includes', () => {
+    describe('When using the default comparisonCb', () => {
+      before(() => {
+        linkedList = new DoublyLinkedList({values: [1, 2, 3]});
+      });
+
+      it('should return true if the value exists', () => {
+        expect(linkedList.includes(3)).to.be.true;
+      });
+
+      it('should return false if the value does not exist', () => {
+        expect(linkedList.includes(4)).to.be.false;
+      });
+    });
+
+    describe('When using a custom comparisonCb', () => {
+      before(() => {
+        linkedList = new DoublyLinkedList({
+          values: [
+            {id: 1, firstName: 'Adam', lastName: 'Smith'},
+            {id: 2, firstName: 'John', lastName: 'Smith'},
+            {id: 3, firstName: 'Jane', lastName: 'Doe'}
+          ],
+          comparisonCb: (a, b) => (a.value.firstName === b.value.firstName && a.value.lastName === b.value.lastName)
+        });
+      });
+
+      it('should return true if the value exists', () => {
+        expect(linkedList.includes({firstName: 'John', lastName: 'Smith'})).to.be.true;
+      });
+
+      it('should return false if the value does not exist', () => {
+        expect(linkedList.includes({firstName: 'Jacob', lastName: 'Smith'})).to.be.false;
       });
     });
   });

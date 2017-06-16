@@ -14,6 +14,23 @@ let linkedList, firstNode, lastNode, spy, errorFn;
 let node1, node2, node3, removedNode, result, cb;
 
 describe('DoublyLinkedList', () => {
+  describe('#add', () => {
+    before(() => {
+      linkedList = new DoublyLinkedList();
+      spy = chai.spy.on(linkedList, 'append');
+      node1 = linkedList.add(1);
+    });
+
+    it('should call #append with the given value', () => {
+      expect(spy).to.have.been.called.once.with(1);
+    });
+
+    it('should return the new node', () => {
+      expect(node1 instanceof DoublyLinkedListNode).to.be.true;
+      expect(node1.value).to.be.equal(1);
+    });
+  });
+
   describe('#delete', () => {
     before(() => {
       node2 = new DoublyLinkedListNode(2);
