@@ -32,7 +32,7 @@ describe('HashMap alias methods', () => {
 
   describe('#contains', () => {
     it('should call #hasValue with the given value', () => {
-      hashMap = new HashMap([1, 2, 3]);
+      hashMap = new HashMap({values: [1, 2, 3]});
       spy = chai.spy.on(hashMap, 'hasValue');
       hashMap.contains(1);
 
@@ -42,7 +42,7 @@ describe('HashMap alias methods', () => {
 
   describe('#delete', () => {
     before(() => {
-      hashMap = new HashMap([1, 2, 3]);
+      hashMap = new HashMap({values: [1, 2, 3]});
       spy = chai.spy.on(hashMap, 'remove');
       value1 = hashMap.delete(1);
     });
@@ -68,7 +68,7 @@ describe('HashMap alias methods', () => {
 
   describe('#include', () => {
     it('should call #hasValue with the given value', () => {
-      hashMap = new HashMap([1, 2, 3]);
+      hashMap = new HashMap({values: [1, 2, 3]});
       spy = chai.spy.on(hashMap, 'hasValue');
       hashMap.include(1);
 
@@ -78,7 +78,7 @@ describe('HashMap alias methods', () => {
 
   describe('#includes', () => {
     it('should call #hasValue with the given value', () => {
-      hashMap = new HashMap([1, 2, 3]);
+      hashMap = new HashMap({values: [1, 2, 3]});
       spy = chai.spy.on(hashMap, 'hasValue');
       hashMap.includes(1);
 

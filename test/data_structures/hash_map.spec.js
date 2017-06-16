@@ -11,22 +11,56 @@ chai.use(spies);
 
 const expect = chai.expect;
 
-let hashMap, expectedKey, key1, key2, spy;
-let result, value1, value2, value4;
+let hashMap, expectedKey, spy, errorFn, cb;
+let key1, key2, key3, result, value1, value2, value3, value4;
 
 describe('HashMap', () => {
   describe('When initializing a hash map', () => {
-    describe('without any values', () => {
-      it('should have a length of 0', () => {
-        hashMap = new HashMap();
-        expect(hashMap.length).to.be.equal(0);
+    describe('with invalid params', () => {
+      describe('when params is not an object', () => {
+        it('should throw a TypeError', () => {
+          errorFn = () => { hashMap = new HashMap([1, 2, 3]); };
+          expect(errorFn).to.throw(TypeError);
+        });
+      });
+
+      describe('when values is not an array', () => {
+        it('should throw a TypeError', () => {
+          errorFn = () => { hashMap = new HashMap({values: 5}); };
+          expect(errorFn).to.throw(TypeError);
+        });
+      });
+
+      describe('when keyGenerator is not a function', () => {
+        it('should throw a TypeError', () => {
+          errorFn = () => { hashMap = new HashMap({keyGenerator: 1}); };
+          expect(errorFn).to.throw(TypeError);
+        });
       });
     });
 
-    describe('with an array of values', () => {
-      it('should have the correct length', () => {
-        hashMap = new HashMap([1, 2, 3]);
-        expect(hashMap.length).to.be.equal(3);
+    describe('with valid params', () => {
+      describe('without any values', () => {
+        it('should have a length of 0', () => {
+          hashMap = new HashMap();
+          expect(hashMap.length).to.be.equal(0);
+        });
+      });
+
+      describe('with an array of values', () => {
+        it('should have the correct length', () => {
+          hashMap = new HashMap({values: [1, 2, 3]});
+          expect(hashMap.length).to.be.equal(3);
+        });
+      });
+
+      describe('with a keyGenerator', () => {
+        it('should override the default keyGenerator', () => {
+          cb = ((node) => (node.value));
+          hashMap = new HashMap({ keyGenerator: cb });
+
+          expect(hashMap.keyGenerator).to.be.equal(cb);
+        });
       });
     });
   });
@@ -48,56 +82,83 @@ describe('HashMap', () => {
   });
 
   describe('#createKey', () => {
-    before(() => {
-      hashMap = new HashMap();
+    describe('When using the default keyGenerator', () => {
+      before(() => {
+        hashMap = new HashMap();
+      });
+
+      it('uses crypto#createHash with a hex digest', () => {
+        key1 = hashMap.createKey(123456);
+        expectedKey = crypto.createHash('sha256').update('123456').digest('hex');
+
+        expect(key1).to.be.equal(expectedKey);;
+      });
+
+      it('creates a unique key given an integer', () => {
+        key1 = hashMap.createKey(123);
+        key2 = hashMap.createKey(123);
+
+        expect(key1).to.be.equal(key2);
+      });
+
+      it('creates a unique key given an array of integers', () => {
+        key1 = hashMap.createKey([1, 2, 3, 4, 5]);
+        key2 = hashMap.createKey([1, 2, 3, 4, 5]);
+
+        expect(key1).to.be.equal(key2);
+      });
+
+      it('creates a unique key for objects', () => {
+        key1 = hashMap.createKey({a: 'a', b: 1});
+        key2 = hashMap.createKey({b: 1, a: 'a'});
+
+        expect(key1).to.be.equal(key2);
+      });
+
+      it('creates a unique key given an array of objects', () => {
+        key1 = hashMap.createKey([{id: 1, name: 'Alan'}, {name: 'Jane', id: 2}, {id: 3, name: 'Kelley'}]);
+        key2 = hashMap.createKey([{id: 1, name: 'Alan'}, {id: 2, name: 'Jane'}, {name: 'Kelley', id: 3}]);
+
+        expect(key1).to.be.equal(key2);
+      });
+
+      it('does not ignore the ordering of array elements', () => {
+        key1 = hashMap.createKey(['a', 1]);
+        key2 = hashMap.createKey([1, 'a']);
+
+        expect(key1).to.not.equal(key2);
+      });
     });
 
-    it('uses crypto#createHash with a hex digest', () => {
-      key1 = hashMap.createKey(123456);
-      expectedKey = crypto.createHash('sha256').update('123456').digest('hex');
+    describe('When using a custom keyGenerator', () => {
+      before(() => {
+        value1 = {id: 1, firstName: 'Chris', lastName: 'Lee'};
+        value2 = {id: 2, firstName: 'Jane', lastName: 'Doe'};
+        value3 = {id: 3, firstName: 'chris', lastName: 'lee'};
+        hashMap = new HashMap({ keyGenerator: (value) => (
+          `${value.firstName.toLowerCase()} ${value.lastName.toLowerCase()}`
+        )});
+      });
 
-      expect(key1).to.be.equal(expectedKey);;
-    });
+      it('should create matching keys according to the keyGenerator', () => {
+        key1 = hashMap.createKey(value1);
+        key3 = hashMap.createKey(value3);
 
-    it('creates a unique key given an integer', () => {
-      key1 = hashMap.createKey(123);
-      key2 = hashMap.createKey(123);
+        expect(key1).to.be.equal(key3);
+      });
 
-      expect(key1).to.be.equal(key2);
-    });
+      it('should create different keys according to the keyGenerator', () => {
+        key1 = hashMap.createKey(value1);
+        key2 = hashMap.createKey(value2);
 
-    it('creates a unique key given an array of integers', () => {
-      key1 = hashMap.createKey([1, 2, 3, 4, 5]);
-      key2 = hashMap.createKey([1, 2, 3, 4, 5]);
-
-      expect(key1).to.be.equal(key2);
-    });
-
-    it('creates a unique key for objects', () => {
-      key1 = hashMap.createKey({a: 'a', b: 1});
-      key2 = hashMap.createKey({b: 1, a: 'a'});
-
-      expect(key1).to.be.equal(key2);
-    });
-
-    it('creates a unique key given an array of objects', () => {
-      key1 = hashMap.createKey([{id: 1, name: 'Alan'}, {name: 'Jane', id: 2}, {id: 3, name: 'Kelley'}]);
-      key2 = hashMap.createKey([{id: 1, name: 'Alan'}, {id: 2, name: 'Jane'}, {name: 'Kelley', id: 3}]);
-
-      expect(key1).to.be.equal(key2);
-    });
-
-    it('does not ignore the ordering of array elements', () => {
-      key1 = hashMap.createKey(['a', 1]);
-      key2 = hashMap.createKey([1, 'a']);
-
-      expect(key1).to.not.equal(key2);
+        expect(key1).not.to.be.equal(key2);
+      });
     });
   });
 
   describe('#getValue', () => {
     before(() => {
-      hashMap = new HashMap([1, 3]);
+      hashMap = new HashMap({values: [1, 3]});
       key1 = hashMap.createKey(1);
       key2 = hashMap.createKey(2);
     });
@@ -113,7 +174,7 @@ describe('HashMap', () => {
 
   describe('#hasKey', () => {
     it('should return true if the cache has the key', () => {
-      hashMap = new HashMap([1, 2, 3]);
+      hashMap = new HashMap({values: [1, 2, 3]});
       key1 = hashMap.createKey(1);
 
       expect(hashMap.hasKey(key1)).to.be.true;
@@ -123,7 +184,7 @@ describe('HashMap', () => {
   describe('#hasValue', () => {
     describe('When the value exists', () => {
       before(() => {
-        hashMap = new HashMap([1, 2, 3]);
+        hashMap = new HashMap({values: [1, 2, 3]});
       });
 
       it('should call createKey with the value passed in', () => {
@@ -149,18 +210,42 @@ describe('HashMap', () => {
 
     describe('When the value does not exist', () => {
       before(() => {
-        hashMap = new HashMap([1, 2, 3]);
+        hashMap = new HashMap({values: [1, 2, 3]});
       });
 
       it('should return false', () => {
         expect(hashMap.hasValue(5)).to.be.false;
       });
     });
+
+    describe('When using a custom keyGenerator', () => {
+      before(() => {
+        value1 = {id: 1, name: 'Chatroom 1', messages: ['hello', 'hi']};
+        value2 = {id: 2, name: 'Chatroom 2', messages: ['apples', 'banananas']};
+        value3 = {id: 1, name: 'Chatroom 1', messages: ['hello', 'hi', 'what\'s up']};
+
+        hashMap = new HashMap({
+          values: [value1],
+          keyGenerator: (value) => (
+            `${value.id} ${value.name}`
+          )
+        });
+      });
+
+      it('should return true if the custom keyGenerator key is matched', () => {
+        expect(hashMap.hasValue(value1)).to.be.true;
+        expect(hashMap.hasValue(value3)).to.be.true;
+      });
+
+      it('should return false if the custom keyGenerator key is not matched', () => {
+        expect(hashMap.hasValue(value2)).to.be.false;
+      });
+    });
   });
 
   describe('#remove', () => {
     before(() => {
-      hashMap = new HashMap([1, 2, 3]);
+      hashMap = new HashMap({values: [1, 2, 3]});
       value2 = hashMap.remove(2);
       value4 = hashMap.remove(4);
     });
