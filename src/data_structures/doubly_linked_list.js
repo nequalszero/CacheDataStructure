@@ -25,14 +25,14 @@ export default class DoublyLinkedList {
     return this._comparisonCb;
   }
 
-  get last() {
-    if (this._length === 0) return null;
-    return this._tail.prev;
-  }
-
   get first() {
     if (this._length === 0) return null;
     return this._head.next;
+  }
+
+  get last() {
+    if (this._length === 0) return null;
+    return this._tail.prev;
   }
 
   get length() {
