@@ -10,38 +10,90 @@ chai.use(spies);
 
 const expect = chai.expect;
 
-let cache, errorFn, key, result, cb;
+let cache, defaultCache, errorFn, key, result, cb;
 let spy, spy1, spy2, spy3;
 let node1, node2, node3, node4, node5;
+let value1, value2, value3;
 let length1, length2;
 
 describe('Cache', () => {
   describe('When initializing a cache', () => {
-    describe('without any values', () => {
-      it('should have a length of 0', () => {
-        cache = new Cache();
-        expect(cache.length).to.be.equal(0);
+    describe('with valid params', () => {
+      describe('without any values', () => {
+        it('should have a length of 0', () => {
+          cache = new Cache();
+          expect(cache.length).to.be.equal(0);
+        });
       });
-    });
 
-    describe('with an array of values', () => {
-      it('should have the correct length', () => {
-        cache = new Cache({values: [1, 2, 3]});
-        expect(cache.length).to.be.equal(3);
+      describe('with an array of values', () => {
+        before(() => {
+          cache = new Cache({values: [1, 2, 3]});
+        });
+
+        it('should have the correct cache, _hashMap, and _linkedList lengths', () => {
+          expect(cache.length).to.be.equal(3);
+          expect(cache._hashMap.length).to.be.equal(3);
+          expect(cache._linkedList.length).to.be.equal(3);
+        });
+
+        it('should properly update the _hashMap with doubly linked list nodes', () => {
+          cache._hashMap.values.forEach((val) => {
+            expect(val instanceof DoublyLinkedListNode).to.be.true;
+          });
+        });
       });
-    });
 
-    describe('with a capacity', () => {
-      it('should have a capacity equal to the given capacity', () => {
-        cache = new Cache({capacity: 10});
-        expect(cache.capacity).to.be.equal(10);
+      describe('with an array of doubly linked list nodes', () => {
+        before(() => {
+          node1 = new DoublyLinkedListNode(1);
+          node2 = new DoublyLinkedListNode(2);
+          node3 = new DoublyLinkedListNode(3);
+
+          cache = new Cache({values: [node1, node2, node3]});
+        });
+
+        it('should have the correct cache, _hashMap, and _linkedList lengths', () => {
+          expect(cache.length).to.be.equal(3);
+          expect(cache._hashMap.length).to.be.equal(3);
+          expect(cache._linkedList.length).to.be.equal(3);
+        });
+
+        it('should properly update the _hashMap with DoublyLinkedListNode instances', () => {
+          cache._hashMap.values.forEach((val) => {
+            expect(val instanceof DoublyLinkedListNode).to.be.true;
+          });
+        });
       });
-    });
 
-    describe('with no capacity', () => {
-      it('should have a capacity equal to Infinity', () => {
-        cache = new Cache();
-        expect(cache.capacity).to.be.equal(Infinity);
+      describe('with a capacity', () => {
+        it('should have a capacity equal to the given capacity', () => {
+          cache = new Cache({capacity: 10});
+          expect(cache.capacity).to.be.equal(10);
+        });
+      });
+
+      describe('with no capacity', () => {
+        it('should have a capacity equal to Infinity', () => {
+          cache = new Cache();
+          expect(cache.capacity).to.be.equal(Infinity);
+        });
+      });
+
+      describe('without a keyGenerator', () => {
+        it('should use the default keyGenerator', () => {
+          cache = new Cache();
+          expect(typeof cache.keyGenerator).to.be.equal('function');
+        });
+      });
+
+      describe('with a keyGenerator', () => {
+        it('should use the provided keyGenerator', () => {
+          cache = new Cache({ keyGenerator: (a) => (a.id) });
+          defaultCache = new Cache();
+
+          expect(cache.keyGenerator({id: 2})).not.to.be.equal(defaultCache.keyGenerator({id: 2}));
+        });
       });
     });
 
@@ -51,53 +103,87 @@ describe('Cache', () => {
         expect(errorFn).to.throw(TypeError);
       });
 
+      it('should throw a TypeError if params is equal to null', () => {
+        errorFn = () => { cache = new Cache(null); };
+        expect(errorFn).to.throw(TypeError);
+      });
+
       it('should throw a TypeError if params.values is not an Array', () => {
-        errorFn = () => { cache = new Cache({values: {a: 5}}); };
+        errorFn = () => { cache = new Cache({ values: {a: 5} }); };
+        expect(errorFn).to.throw(TypeError);
+      });
+
+      it('should throw a TypeError if params.values is equal to null', () => {
+        errorFn = () => { cache = new Cache({ values: null }); };
         expect(errorFn).to.throw(TypeError);
       });
 
       it('should throw a TypeError if params.capacity is not an Integer', () => {
-        errorFn = () => { cache = new Cache({capacity: {a: 5}}); };
+        errorFn = () => { cache = new Cache({ capacity: {a: 5} }); };
+        expect(errorFn).to.throw(TypeError);
+      });
+
+      it('should throw a TypeError if params.capacity is equal to null', () => {
+        errorFn = () => { cache = new Cache({ capacity: null }); };
         expect(errorFn).to.throw(TypeError);
       });
 
       it('should throw a RangeError if params.capacity is less than 1', () => {
-        errorFn = () => { cache = new Cache({capacity: 0}); };
+        errorFn = () => { cache = new Cache({ capacity: 0 }); };
         expect(errorFn).to.throw(RangeError);
+      });
+
+      it('should throw a TypeError if params.keyGenerator is not a function', () => {
+        errorFn = () => { cache = new Cache({ keyGenerator: 0 }); };
+        expect(errorFn).to.throw(TypeError);
+      });
+
+      it('should throw a TypeError if params.keyGenerator is equal to null', () => {
+        errorFn = () => { cache = new Cache({ keyGenerator: null }); };
+        expect(errorFn).to.throw(TypeError);
       });
     });
   });
 
-  describe('.capacity', () => {
-    it('should return the capacity of the cache', () => {
-      cache = new Cache();
-      expect(cache.capacity).to.be.equal(Infinity);
+  describe('Getter methods', () => {
+    describe('.capacity', () => {
+      it('should return the capacity of the cache', () => {
+        cache = new Cache();
+        expect(cache.capacity).to.be.equal(Infinity);
 
-      cache = new Cache({capacity: 5});
-      expect(cache.capacity).to.be.equal(5);
+        cache = new Cache({ capacity: 5 });
+        expect(cache.capacity).to.be.equal(5);
+      });
     });
-  });
 
-  describe('.first', () => {
-    it('should return the first item in the cache', () => {
-      cache = new Cache({values: [1, 2, 3]});
-      expect(cache.first.value).to.be.equal(1);
-      expect(cache.first instanceof DoublyLinkedListNode).to.be.true;
+    describe('.first', () => {
+      it('should return the first item in the cache', () => {
+        cache = new Cache({ values: [1, 2, 3] });
+        expect(cache.first.value).to.be.equal(1);
+        expect(cache.first instanceof DoublyLinkedListNode).to.be.true;
+      });
     });
-  });
 
-  describe('.last', () => {
-    it('should return the last item in the cache', () => {
-      cache = new Cache({values: [1, 2, 3]});
-      expect(cache.last.value).to.be.equal(3);
-      expect(cache.last instanceof DoublyLinkedListNode).to.be.true;
+    describe('.last', () => {
+      it('should return the last item in the cache', () => {
+        cache = new Cache({ values: [1, 2, 3] });
+        expect(cache.last.value).to.be.equal(3);
+        expect(cache.last instanceof DoublyLinkedListNode).to.be.true;
+      });
     });
-  });
 
-  describe('.length', () => {
-    it('should return the length of the cache', () => {
-      cache = new Cache({values: [1, 2, 3]});
-      expect(cache.length).to.be.equal(3);
+    describe('.length', () => {
+      it('should return the length of the cache', () => {
+        cache = new Cache({ values: [1, 2, 3] });
+        expect(cache.length).to.be.equal(3);
+      });
+    });
+
+    describe('.keyGenerator', () => {
+      it('should return the keyGenerator of the cache', () => {
+        cache = new Cache({ keyGenerator: (a) => (a.id) });
+        expect(typeof cache.keyGenerator === 'function').to.be.true;
+      });
     });
   });
 
@@ -126,8 +212,21 @@ describe('Cache', () => {
 
       it('correctly modifies the _linkedList attribute', () => {
         cache.append(3);
-        expect(cache._linkedList.first.value).to.be.equal(1);
-        expect(cache._linkedList.last.value).to.be.equal(3);
+        expect(cache.first.value).to.be.equal(1);
+        expect(cache.last.value).to.be.equal(3);
+      });
+
+      it('handles new additions that are nodes', () => {
+        node4 = new DoublyLinkedListNode(4);
+        cache.append(node4);
+
+        expect(cache.last).to.be.equal(node4);
+      });
+
+      it('adds doubly linked list nodes to the hash map', () => {
+        cache._hashMap.values.forEach((val) => {
+          expect(val instanceof DoublyLinkedListNode).to.be.true;
+        });
       });
     });
 
@@ -251,17 +350,102 @@ describe('Cache', () => {
     });
   });
 
+  describe('#getNode', () => {
+    describe('When using the default keyGenerator function', () => {
+      before(() => {
+        node1 = new DoublyLinkedListNode(1);
+        node3 = new DoublyLinkedListNode(3);
+
+        cache = new Cache({values: [node1, 2, node3]});
+      });
+
+      it('should return the correct node', () => {
+        result = cache.getNode(1);
+        expect(result).to.be.equal(node1);
+
+        result = cache.getNode(2);
+        expect(result.value).to.be.equal(2);
+      });
+
+      it('should call #createKey with the value passed in', () => {
+        spy = chai.spy.on(cache, 'createKey');
+        cache.getNode(3);
+
+        expect(spy).to.have.been.called.once.with(3);
+      });
+
+      it('should return null if the node is not found', () => {
+        result = cache.getNode(5);
+
+        expect(result).to.be.equal(null);
+      });
+    });
+
+    describe('When using a custom keyGenerator function', () => {
+      before(() => {
+        node1 = new DoublyLinkedListNode({ id: 1, firstName: 'Alfred', lastName: 'Atkins' });
+        node2 = new DoublyLinkedListNode({ id: 2, firstName: 'Bob', lastName: 'Burgers' });
+        value1 = { firstName: 'Alfred', lastName: 'Atkins' };
+
+        cache = new Cache({
+          values: [node1, node2],
+          keyGenerator: (value) => (`${value.firstName} ${value.lastName}`)
+        });
+
+        console.log('hashMap keys: ', cache._hashMap.keys);
+        console.log('keyGenerator: ', cache._hashMap.keyGenerator);
+      });
+
+      it('should return the correct node', () => {
+        result = cache.getNode(value1);
+        expect(result).to.be.equal(node1);
+      });
+
+      it('should call #createKey with the value passed in', () => {
+        spy = chai.spy.on(cache, 'createKey');
+        cache.getNode(value1);
+
+        expect(spy).to.have.been.called.once.with(value1);
+      });
+
+      it('should return null if the node is not found', () => {
+        result = cache.getNode(5);
+
+        expect(result).to.be.equal(null);
+      });
+    });
+  });
+
   describe('#hasValue', () => {
-    before(() => {
-      cache = new Cache({values: [1, 2, 3]});
+    describe('When using the default keyGenerator function', () => {
+      before(() => {
+        cache = new Cache({values: [1, 2, 3]});
+      });
+
+      it('should return false if the value is not in the cache', () => {
+        expect(cache.hasValue(4)).to.be.false;
+      });
+
+      it('should return true if the value is in the cache', () => {
+        expect(cache.hasValue(2)).to.be.true;
+      });
     });
 
-    it('should return false if the value is not in the cache', () => {
-      expect(cache.hasValue(4)).to.be.false;
-    });
+    describe('When using a custom keyGenerator function', () => {
+      before(() => {
+        value1 = { id: 1, firstName: 'Alfred', lastName: 'Atkins' };
+        value2 = { id: 2, firstName: 'Bob', lastName: 'Burgers' };
+        value3 = { firstName: 'Alfred', lastName: 'Atkins' };
 
-    it('should return true if the value is in the cache', () => {
-      expect(cache.hasValue(2)).to.be.true;
+        cache = new Cache({
+          values: [value1, value2],
+          keyGenerator: (value) => (`${value.firstName} ${value.lastName}`)
+        });
+      });
+
+      it('should return true if the keyGenerator key matches', () => {
+        expect(cache.hasValue(value3)).to.be.true;
+      });
     });
   });
 
@@ -453,6 +637,19 @@ describe('Cache', () => {
         cache.prepend(3);
         expect(cache._linkedList.first.value).to.be.equal(3);
         expect(cache._linkedList.last.value).to.be.equal(1);
+      });
+
+      it('handles new prepends that are nodes', () => {
+        node4 = new DoublyLinkedListNode(4);
+        cache.prepend(node4);
+
+        expect(cache.first).to.be.equal(node4);
+      });
+
+      it('adds doubly linked list nodes to the hash map', () => {
+        cache._hashMap.values.forEach((val) => {
+          expect(val instanceof DoublyLinkedListNode).to.be.true;
+        });
       });
     });
 

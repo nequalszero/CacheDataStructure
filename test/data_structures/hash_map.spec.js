@@ -5,14 +5,17 @@ import spies from 'chai-spies';
 
 import crypto from 'crypto';
 import HashMap from '../../src/data_structures/hash_map';
+import isEqual from 'lodash/isEqual';
 
 chai.expect();
 chai.use(spies);
 
 const expect = chai.expect;
 
-let hashMap, expectedKey, spy, errorFn, cb;
-let key1, key2, key3, result, value1, value2, value3, value4;
+let hashMap, hashMap1, spy, errorFn, result;
+let cb, cb1;
+let expectedKey, key1, key2, key3;
+let values, value1, value2, value3, value4;
 
 describe('HashMap', () => {
   describe('When initializing a hash map', () => {
@@ -65,6 +68,52 @@ describe('HashMap', () => {
     });
   });
 
+  describe('Getter methods', () => {
+    before(() => {
+      values = [1, 2, 3];
+      hashMap = new HashMap({ values });
+    });
+
+    describe('.cache', () => {
+      it('should return the hashmap cache', () => {
+        result = {};
+        values.forEach((val) => { result[hashMap.createKey(val)] = val; });
+        expect(isEqual(hashMap.cache, result)).to.be.true;
+      });
+    });
+
+    describe('.keys', () => {
+      it('should return the keys in the hashmap cache', () => {
+        result = [];
+        values.forEach((val) => { result.push(hashMap.createKey(val)); });
+        expect(hashMap.keys).to.include.members(result);
+        expect(hashMap.keys.length).to.be.equal(3);
+      });
+    });
+
+    describe('.keyGenerator', () => {
+      it('should return the keyGenerator function for the hashmap', () => {
+        cb1 = (val) => (val.id);
+        hashMap1 = new HashMap({ keyGenerator: cb1 });
+
+        expect(cb1).to.be.equal(hashMap1.keyGenerator);
+      });
+    });
+
+    describe('.length', () => {
+      it('should return the length of the hashmap', () => {
+        expect(hashMap.length).to.be.equal(3);
+      });
+    });
+
+    describe('.values', () => {
+      it('should return the values in the hashmap cache', () => {
+        expect(hashMap.values).to.include.members(values);
+        expect(hashMap.values.length).to.be.equal(3);
+      });
+    });
+  });
+
   describe('#addValue', () => {
     before(() => {
       hashMap = new HashMap();
@@ -110,14 +159,14 @@ describe('HashMap', () => {
 
       it('creates a unique key for objects', () => {
         key1 = hashMap.createKey({a: 'a', b: 1});
-        key2 = hashMap.createKey({b: 1, a: 'a'});
+        key2 = hashMap.createKey({a: 'a', b: 1});
 
         expect(key1).to.be.equal(key2);
       });
 
       it('creates a unique key given an array of objects', () => {
         key1 = hashMap.createKey([{id: 1, name: 'Alan'}, {name: 'Jane', id: 2}, {id: 3, name: 'Kelley'}]);
-        key2 = hashMap.createKey([{id: 1, name: 'Alan'}, {id: 2, name: 'Jane'}, {name: 'Kelley', id: 3}]);
+        key2 = hashMap.createKey([{id: 1, name: 'Alan'}, {name: 'Jane', id: 2}, {id: 3, name: 'Kelley'}]);
 
         expect(key1).to.be.equal(key2);
       });

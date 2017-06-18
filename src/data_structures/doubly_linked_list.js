@@ -7,7 +7,7 @@ export default class DoublyLinkedList {
   constructor(params = null) {
     this._validateInput(params);
     params = Object.assign(
-      {values: null, comparisonCb: (a, b) => (a.value === b.value)},
+      { values: null, comparisonCb: (a, b) => (a.value === b.value) },
       params
     );
 
@@ -184,8 +184,6 @@ export default class DoublyLinkedList {
       const {values, comparisonCb} = params;
       const valuesError = new TypeError('values should be an array or null.');
       const comparisonCbError = new TypeError('comparisonCb should be a Function or null.');
-
-      console.log('comparisonCb', comparisonCb);
 
       if (!(isArray(values) || values === undefined)) throw valuesError;
       if (!(typeof comparisonCb === 'function' || comparisonCb === undefined)) throw comparisonCbError;

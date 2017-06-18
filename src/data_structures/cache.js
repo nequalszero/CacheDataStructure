@@ -1,4 +1,5 @@
 import DoublyLinkedList from './doubly_linked_list';
+import DoublyLinkedListNode from './doubly_linked_list_node';
 import HashMap from './hash_map';
 import isArray from 'lodash/isArray';
 import isInteger from 'lodash/isInteger';
@@ -8,11 +9,19 @@ import isPlainObject from 'lodash/isPlainObject';
 //   values: array of starting values, and
 //   capacity: integer for maximum length, default is Infinity
 export default class Cache {
-  constructor(params = {}) {
-    this._validateInput(params);
-    params = Object.assign({capacity: Infinity, values: null}, params);
+  constructor(options = {}) {
+    this._validateInput(options);
+    const params = Object.assign({ capacity: Infinity, values: null }, options);
 
-    this._hashMap = new HashMap();
+    // Applies the custom keyGenerator function if provided, after extracting the value
+    //   attribute in the case of value being a DoublyLinkedListNode instance.
+    params.keyGenerator = ((value) => {
+      if (value instanceof DoublyLinkedListNode) value = value.value;
+
+      return (options.keyGenerator !== undefined) ? options.keyGenerator(value) : value;
+    });
+
+    this._hashMap = new HashMap({ keyGenerator: params.keyGenerator });
     this._linkedList = new DoublyLinkedList();
     this._capacity = params.capacity;
 
@@ -26,6 +35,10 @@ export default class Cache {
   get first() {
     if (this._linkedList.length === 0) return null;
     return this._linkedList.first;
+  }
+
+  get keyGenerator() {
+    return this._hashMap.keyGenerator;
   }
 
   get last() {
@@ -193,16 +206,18 @@ export default class Cache {
 
     if (!isPlainObject(params)) throw paramsTypeError;
 
-    const keys = Object.keys(params);
+    const { values, capacity, keyGenerator } = params;
     const valuesError = new TypeError('Invalid input type for params.values');
     const capacityTypeError = new TypeError('Invalid input type for params.capacity');
     const capacityRangeError = new RangeError('Params.capacity must be greater than 0');
+    const keyGeneratorError = new TypeError('keyGenerator should be a Function or null.');
 
-    if (keys.length === 0) return;
-    if (keys.includes('values') && !isArray(params.values)) throw valuesError;
-    if (keys.includes('capacity')) {
-      if (!isInteger(params.capacity)) throw capacityTypeError;
-      if (params.capacity <= 0) throw capacityRangeError;
+    if (Object.keys(params).length === 0) return;
+    if (values !== undefined && !isArray(values)) throw valuesError;
+    if (capacity !== undefined) {
+      if (!isInteger(capacity)) throw capacityTypeError;
+      if (capacity <= 0) throw capacityRangeError;
     }
+    if (!(typeof keyGenerator === 'function' || keyGenerator === undefined)) throw keyGeneratorError;
   }
 };

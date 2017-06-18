@@ -57,13 +57,15 @@ export default class HashMap {
   createKey(value) {
     const hash = crypto.createHash(this._hashingAlgorithm);
     const processedValue = this._keyGenerator(value);
-    const key = hash.update(processedValue.toString()).digest('hex');
+    const key = hash.update(JSON.stringify(processedValue)).digest('hex');
 
     return key;
   }
 
   getValue(key) {
-    return this._cache[key] ? this._cache[key] : null;
+    const value = this._cache[key];
+
+    return (value !== undefined) ? value : null;
   }
 
   hasKey(key) {
@@ -93,8 +95,6 @@ export default class HashMap {
       const {values, keyGenerator} = params;
       const valuesError = new TypeError('values should be an array or null.');
       const keyGeneratorError = new TypeError('keyGenerator should be a Function or null.');
-
-      console.log('keyGenerator', keyGenerator);
 
       if (!(isArray(values) || values === undefined)) throw valuesError;
       if (!(typeof keyGenerator === 'function' || keyGenerator === undefined)) throw keyGeneratorError;
