@@ -1,12 +1,16 @@
 # Data Structures
 ## Contents
 - [Cache](#cache)
+  -[Cache Getters](#cache-getters)
+  -[Cache Instance Methods](#cache-instance-methods)
+- [Hash Map](#hash-map)
+  -[Hash Map Getters](#hash-map-getters)
+  -[Hash Map Instance Methods](#hash-map-instance-methods)
+- [Doubly Linked List](#doubly-linked-list)
+  - [Doubly Linked List Getters](#doubly-linked-list-getters)
+  - [Doubly Linked List Setters](#doubly-linked-list-setters)
+  - [Doubly Linked List Instance Methods](#doubly-linked-list-instance-methods)
 
-- [HashMap](#hash-map)
-
-- [DoublyLinkstedList](#doubly-linked-list)
-
-- [DoublyLinkedListNode](#doubly-linked-list-node)
 
 ## About
 Personal project experimenting with making NPM packages and creating data  structures.  The currently included structures are a `cache`, a `doubly linked list`, and a `hash map`.
@@ -64,7 +68,7 @@ const firstNode = cache2.first; // returns DoublyLinkedListNode instance
 cache2.includes(firstNode); // true
 ```
 
-#### Getters
+#### Cache Getters
 * `capacity`
 
   Returns the capacity of the cache.
@@ -85,7 +89,7 @@ cache2.includes(firstNode); // true
 
   Returns the number of nodes in the cache.
 
-#### Instance methods
+#### Cache Instance Methods
 
 * `#add(value)`
 
@@ -157,7 +161,7 @@ cache2.includes(firstNode); // true
 
 * `#remove(value)`
 
-  Accepts a value or a node. Removes the node from the cache and returns it if it existed.  Returns null if it does not exist.
+  Accepts a value or a node. Removes the node from the cache and returns it if it exists.  Returns null if it does not exist.
 
 * `#shift`
 
@@ -167,11 +171,11 @@ cache2.includes(firstNode); // true
 
   Alias for #prepend.
 
+
 ### Hash Map
 The constructor for the HashMap accepts an optional `options` object that can have keys, `values`, and `keyGenerator`.  
-* The default `capacity` of the Cache is Infinity.  
-* If an array of `values` are provided, the Cache will initialize with the values in the order that they are provided.  
-* The `keyGenerator` option should be a function used to serialize a value, and determine whether a value exists in the Cache. The default `keyGenerator` simply compares by value.  Therefore it's recommended to provide a custom `keyGenerator` if the node values are objects or custom class instances.
+* If an array of `values` are provided, the HashMap will initialize with the values in the order that they are provided.  
+* The `keyGenerator` option should be a function used to serialize a value, and determine whether a value exists in the HashMap. The default `keyGenerator` simply compares by value.  Therefore it's recommended to provide a custom `keyGenerator` if the node values are objects or custom class instances.
 
 ```javascript
 // Example of providing values.
@@ -191,7 +195,7 @@ hashMap2.includes({firstName: "Charlie", lastName: "Brown"}); // true
 hashMap2.includes({lastName: "Brown"}); // false
 ```
 
-#### Getters
+#### Hash Map Getters
 * `cache`
 
   Returns the cache object of the hash map.
@@ -212,7 +216,7 @@ hashMap2.includes({lastName: "Brown"}); // false
 
   Returns the values in the hash map.
 
-#### Instance methods
+#### Hash Map Instance Methods
 
 * `#add(value)`
 
@@ -264,4 +268,107 @@ hashMap2.includes({lastName: "Brown"}); // false
 
 * `#remove(value)`
 
-  Removes the value from the hash map and returns it if it existed.  Returns null if it does not exist.
+  Removes the value from the hash map and returns it if it exists.  Returns null if it does not exist.
+
+
+### Doubly Linked List
+The constructor for the HashMap accepts an optional `options` object that can have keys, `values`, and `comparisonCb`.  
+* If an array of `values` are provided, the Cache will initialize with the values in the order that they are provided.  
+* The `comparisonCb` option should be a function used to compare 2 nodes, and determine whether a node exists in the list. The default `comparisonCb` simply compares by value.  Therefore it's recommended to provide a custom `comparisonCb` if the node values are objects or custom class instances.
+
+```javascript
+// Example of providing values.
+const linkedList1 = new DoublyLinkedList({values: [1, 2, 3]});
+linkedList1.first; // returns DoublyLinkedListNode with value of 1
+linkedList1.last; // returns DoublyLinkedListNode with value of 3
+linkedList1.includes(1) // true
+linkedList1.includes(4) // false
+
+// Example providing a comparisonCb.
+const linkedList2 = new DoublyLinkedList({ comparisonCb: (node) => (
+  `${node.value.firstName} ${node.value.lastName}`
+)});
+linkedList2.add({id: 1, firstName: "Charlie", lastName: "Brown"});
+linkedList2.add({id: 2, firstName: "Lucy", lastName: "Brown"});
+linkedList2.add({id: 3, firstName: "Calvin", lastName: "Hobbes"});
+linkedList2.includes({id: 1, firstName: "Charlie", lastName: "Brown"}); // true
+linkedList2.includes({firstName: "Charlie", lastName: "Brown"}); // true
+linkedList2.includes({lastName: "Brown"}); // false
+```
+
+#### Doubly Linked List Getters
+* `comparisonCb`
+
+  Returns the comparisonCb function being used by the linked list.
+
+* `first`
+
+  Returns the first node in the linked list.
+
+* `last`
+
+  Returns the last node in the linked list.
+
+* `length`
+
+  Returns the number of nodes in the linked list.
+
+* `values`
+
+  Returns the values in the linked list.
+
+#### Doubly Linked List Setters
+
+* `comparisonCb(cb)`
+
+  Sets the comparisonCb function of the linked list.  Throws a TypeError if the cb provided is not a function.
+
+#### Doubly Linked List Instance Methods
+
+* `#add(value)`
+
+  Alias for #append.
+
+* `#append(value)`
+
+  Accepts a value or a node. Creates a new node if needed and appends it to the tail end of the linked list. Returns the node.
+
+* `#delete(value)`
+
+  Alias for #remove.
+
+* `#forEach(cb, reversed = false)`
+
+  Iterator for looping through the nodes from head to tail order.  Applies the given callback to each node.  Goes in reverse order from tail to head if the reversed boolean is true.
+
+* `#includes(value)`
+
+  Accepts a value or node. Returns true if the value exists in the linked list, false if it does not.
+
+* `#map(cb, reversed = false)`
+
+  Similar to #forEach but puts the result of invoking the callback function on each node into an array.  Goes in reverse order from tail to head if the reversed boolean is true.  Returns an array.
+
+* `#pop`
+
+  Returns null if the linked list is empty. Removes and returns the last node in the linked list otherwise.
+
+* `#prepend(value)`
+
+  Accepts a value or a node. Creates a new node if needed and adds it to the head side of the linked list. Returns the node.
+
+* `#push(value)`
+
+  Alias for #append.
+
+* `#remove(value)`
+
+  Accepts a value or a node. Removes the node from the linked list and returns it if it exists.  Returns null if it does not exist.
+
+* `#shift`
+
+  Returns null if the linked list is empty. Removes and returns the first node in the linked list otherwise.
+
+* `#unshift(value)`
+
+  Alias for #prepend.
