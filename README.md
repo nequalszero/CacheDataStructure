@@ -1,11 +1,11 @@
 # Data Structures
 ## Contents
 - [Cache](#cache)  
-  -[Cache Getters](#cache-getters)  
-  -[Cache Instance Methods](#cache-instance-methods)  
+  - [Cache Getters](#cache-getters)  
+  - [Cache Instance Methods](#cache-instance-methods)  
 - [Hash Map](#hash-map)  
-  -[Hash Map Getters](#hash-map-getters)  
-  -[Hash Map Instance Methods](#hash-map-instance-methods)  
+  - [Hash Map Getters](#hash-map-getters)  
+  - [Hash Map Instance Methods](#hash-map-instance-methods)  
 - [Doubly Linked List](#doubly-linked-list)  
   - [Doubly Linked List Getters](#doubly-linked-list-getters)  
   - [Doubly Linked List Setters](#doubly-linked-list-setters)  
