@@ -1,12 +1,12 @@
 # Data Structures
 ## Contents
-[Cache](#cache)
+- [Cache](#cache)
 
-[HashMap](#hash-map)
+- [HashMap](#hash-map)
 
-[DoublyLinkstedList](#doubly-linked-list)
+- [DoublyLinkstedList](#doubly-linked-list)
 
-[DoublyLinkedListNode](#doubly-linked-list-node)
+- [DoublyLinkedListNode](#doubly-linked-list-node)
 
 ## About
 Personal project experimenting with making NPM packages and creating data  structures.  The currently included structures are a `cache`, a `doubly linked list`, and a `hash map`.
@@ -39,16 +39,16 @@ import { DoublyLinkedList } from 'nequalszero-data-structures';
 
 ## API
 ### Cache
-The constructor for the Cache acceps an optional `options` object that can have keys `capacity`, `values`, and `keyGenerator`.  
+The constructor for the Cache accepts an optional `options` object that can have keys `capacity`, `values`, and `keyGenerator`.  
 * The default `capacity` of the Cache is Infinity.  
 * If an array of `values` are provided, the Cache will initialize with the values in the order that they are provided.  
-* The `keyGenerator` option should be a function used to serialize a value, and determine whether a value exists in the Cache, treating a value to be an actual value, not a `DoublyLinkedListNode` instance.  In turn the `Cache#includes` method will recognize both values and instances of `DoublyLinkedListNode`.  The default `keyGenerator` simply compares the values of the nodes.  Therefore it's recommended to provide a custom `keyGenerator` if the node values are `objects` or custom `classes`.
+* The `keyGenerator` option should be a function used to serialize a value, and determine whether a value exists in the Cache, treating a value to be an actual value, not a `DoublyLinkedListNode` instance.  In turn the `Cache#includes` method will recognize both values and instances of `DoublyLinkedListNode`.  The default `keyGenerator` simply compares the values of the nodes.  Therefore it's recommended to provide a custom `keyGenerator` if the node values are objects or custom class instances.
 
 ```javascript
 // Example of providing values
 const cache1 = new Cache({values: [1, 2, 3]});
-cache.first // returns a DoublyLinkedListNode with value 1.
-cache.last // returns a DoublyLinkedListNode with value 3.
+cache1.first // returns a DoublyLinkedListNode with value 1.
+cache1.last // returns a DoublyLinkedListNode with value 3.
 
 // Example providing a keyGenerator
 const cache2 = new Cache({ keyGenerator: (value) => (
@@ -101,7 +101,7 @@ cache2.includes(firstNode); // true
 
 * `#createKey(value)`
 
-  Accepts a node or value, and returns the hash key.
+  Accepts a node or value, and returns the hash key. Calls HashMap#createKey.
 
 * `#delete(value)`
 
@@ -113,7 +113,7 @@ cache2.includes(firstNode); // true
 
 * `#getNode(value)`
 
-  Accepts a value or a node. Retrieves the node from the hash matching the given value.  Returns null if no key matches key created for the value provided.
+  Accepts a value or a node. Retrieves the node from the hash matching the given value.  Returns null if no key matches the key created for the value provided.
 
 * `#has(value)`
 
@@ -166,3 +166,102 @@ cache2.includes(firstNode); // true
 * `#unshift(value)`
 
   Alias for #prepend.
+
+### Hash Map
+The constructor for the HashMap accepts an optional `options` object that can have keys, `values`, and `keyGenerator`.  
+* The default `capacity` of the Cache is Infinity.  
+* If an array of `values` are provided, the Cache will initialize with the values in the order that they are provided.  
+* The `keyGenerator` option should be a function used to serialize a value, and determine whether a value exists in the Cache. The default `keyGenerator` simply compares by value.  Therefore it's recommended to provide a custom `keyGenerator` if the node values are objects or custom class instances.
+
+```javascript
+// Example of providing values.
+const hashMap1 = new HashMap({values: [1, 2, 3]});
+hashMap1.includes(1) // true
+hashMap1.includes(4) // false
+
+// Example providing a keyGenerator.
+const hashMap2 = new HashMap({ keyGenerator: (value) => (
+  `${value.firstName} ${value.lastName}`
+)});
+hashMap2.add({id: 1, firstName: "Charlie", lastName: "Brown"});
+hashMap2.add({id: 2, firstName: "Lucy", lastName: "Brown"});
+hashMap2.add({id: 3, firstName: "Calvin", lastName: "Hobbes"});
+hashMap2.includes({id: 1, firstName: "Charlie", lastName: "Brown"}); // true
+hashMap2.includes({firstName: "Charlie", lastName: "Brown"}); // true
+hashMap2.includes({lastName: "Brown"}); // false
+```
+
+#### Getters
+* `cache`
+
+  Returns the cache object of the hash map.
+
+* `keys`
+
+  Returns the keys in the hash map.
+
+* `keyGenerator`
+
+  Returns the keyGenerator function being used by the hash map.
+
+* `length`
+
+  Returns the number of nodes in the hash map.
+
+* `values`
+
+  Returns the values in the hash map.
+
+#### Instance methods
+
+* `#add(value)`
+
+  Alias for #addValue.
+
+* `#addValue(value)`
+
+  Adds the value to the cache and returns the value.
+
+* `#contains(value)`
+
+  Alias for #hasValue.
+
+* `#createKey(value)`
+
+  Creates a key for the value using an `sha256` hashing algorithm from the crypto library on the result of calling the keyGenerator function on the value. Returns the key.
+
+* `#delete(value)`
+
+  Alias for #remove.
+
+* `#getKey(value)`
+
+  Alias for #createKey.
+
+* `#getValue(key)`
+
+  Accepts a key. Retrieves the value from the hash matching the given key.  Returns null if no value matches the key.
+
+* `#hasKey(key)`
+
+  Returns true if the key exists in the hash map, false if it does not.
+
+* `#hasValue(value)`
+
+  Returns true if the value exists in the hash map, false if it does not.
+
+* `#include(value)`
+
+  Alias for #hasValue.
+
+* `#includes(value)`
+
+  Alias for #hasValue.
+
+* `#insert(value)`
+
+  Alias for #addValue.
+
+* `#remove(value)`
+
+  Removes the value from the hash map and returns it if it existed.  Returns null if it does not exist.
