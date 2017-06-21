@@ -15,6 +15,10 @@
 ## About
 Personal project experimenting with making NPM packages and creating data  structures.  The currently included structures are a `cache`, a `doubly linked list`, and a `hash map`.
 
+Tests were written with using the libraries `mocha`, `chai`, and `chai-spies`, and can be found in the `test/datastructures` folder.  The test suite can be ran via `npm test`.
+
+The project was setup using a webpack starter library.  More details can be seen in the `webpack_starter_library.md` file.
+
 ## Usage
 Installation via `npm install --save nequalszero-data-structures`.
 
